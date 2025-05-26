@@ -29,9 +29,11 @@ git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 ./bin/git-fleximod update
 ```
 
-## Download data
+## Set up model input data
 
-Check whether it's possible to re-use the data from the old setup, at least the surface data files. If not, I have to find forcing for the site and bias-correct before applying forcing again. 
+Store model input data (atmospheric forcing, durface data, domain) under /cluster/home/evaler/inputdata. 
+
+Check whether it's possible to re-use the data from the old setup, at least the atmospheric forcing. 
 
 Prepared single-site forcing available on GitHub, modified from the [NorESM-LSP](). All these prepared folders include modified surface data (see [the dataprep_surfacedata notebook](https://github.com/evalieungh/FATES_INCLINE/blob/main/src/data_handling/dataprep_surfacedata.ipynb)). Zipped files are available for GSWP3, COSMO, and COSMO-Warmed under [evalieungh/FATES_INCLINE/main/data/](https://github.com/evalieungh/FATES_INCLINE/tree/main/data).
 
@@ -49,9 +51,25 @@ wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_c
 
 Unzip the folders into Betzy login node folder fates_incline/ALP4-GSWP3 etc with `unzip`
 
-**ALTERNATIVE** Use new data
+### **ALTERNATIVE** Use new data
+
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
-Stored under /cluster/home/evaler/inputdata
+
+### Modify surface data and replace old (LSP) version
+
+First, manually upload the following Vestland Climate Grid data files (from https://osf.io/npfa9) to the data folder (/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF):
+- https://osf.io/s9k7c, VCG_clean_gridded_daily_climate_2008-2022.csv
+- VCG_clean_soil_chemistry_2009_2010_2013_2015.csv
+- VCG_clean_soil_structure_2013_2014_2018.csv
+- VCG_clean_soilmoisture_plotlevel_2015-2018.csv
+
+Then run this shell script that executes a python script to read and process data and create a modified version, and replaces the surface data in the input data folders with the new modified version:
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x surfacedata_mod_exec.sh
+chmod +x surfacedata_modification.py
+./surfacedata_mod_exec.sh
+```
 
 ### Changes to manually specify input data location
 
@@ -67,20 +85,20 @@ domain = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/domain.lnd.fv0.
 
 [surfdat]
 dir = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3
-surfdat_16pft = surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc
+surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250521.nc
 
 [domain]
 file = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
 ```
+
+(old surface data file name: surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc)
 
 Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. 
 The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). For now I assume that this file is not necessary to change but can be overwritten with namelist changes for specific cases.
 
 ## setting up cases and running the model
 
-Create cases, which will be placed in ~/fates_incline/casename.
-
-Tried making a simple script, ./create_case_DA-GSWP3.sh. Make it executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist
+Create cases, which will be placed in ~/fates_incline/casename. There is one create case script per case to make sure it's reproducible. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist.
 
 ```
 cd /cluster/home/evaler/FATES_INCLINE/src/simulation_setup/
@@ -93,7 +111,7 @@ cd /cluster/home/evaler/fates_incline/<casename>
 Then, add these namelist changes to user_nl_clm (inside case directory):
 
 ```
-fsurdat = '$CLM_USRDAT_DIR/surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc'
+fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250521.nc'
 
 use_bedrock = .true.
 
@@ -102,13 +120,13 @@ hist_nhtfrq = 0,-24
 hist_mfilt = 12,30
 ```
 
-Also, replace the default user_nl_datm_streams with the one from the (modified) LSP data
-
-```
-cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
-mv user_nl_datm_streams user_nl_datm_streams_default
-cp /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/user_mods/user_nl_datm_streams user_nl_datm_streams
-```
+# Also, replace the default user_nl_datm_streams with the one from the (modified) LSP data
+# 
+# ```
+# cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
+# mv user_nl_datm_streams user_nl_datm_streams_default
+# cp /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/user_mods/user_nl_datm_streams user_nl_datm_streams
+# ```
 
 Then we set some simulation settings. Make a short script, fates_incline/SKJ1PT_DA-GSWP3_PTS/xmlchange_DA-GSWP3.sh, with all the xml changes needed. 
 
@@ -142,7 +160,9 @@ Then, build the case so it is ready for running, and run a check to see if there
 Build logs, and output from the simulation, will be placed under /cluster/work/users/evaler/noresm/casename. 
 Go there and check the logs just in case to see that there are no errors. 
 
-The final step is to submit a job to run the model. See https://documentation.sigma2.no/jobs/submitting.html
+### Submit the case
+
+The final step is to submit a job to run the model.
 
 ```
 ./case.submit

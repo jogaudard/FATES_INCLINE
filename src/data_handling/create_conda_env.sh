@@ -10,4 +10,7 @@ cd /cluster/home/evaler/CTSM/python
 conda create -p $CONDA_ENV_SRC/ctsm-env
 conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env --file conda_env_ctsm_py_latest.txt
 conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env nco
-conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
+conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env netcdf4
+
+# to activate:
+# conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
