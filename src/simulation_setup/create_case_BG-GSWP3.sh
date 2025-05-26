@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=SKJ1PT_DA-GSWP3
+CASE_NAME=SKJ1PT_BG-GSWP3
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
 UMODS_ROOT=/cluster/home/evaler/inputdata/skj_pt_gswp3

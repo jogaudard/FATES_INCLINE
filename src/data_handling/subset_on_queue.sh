@@ -17,7 +17,7 @@ source ${EBROOTMINIFORGE3}/bin/activate
 export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/evaler/package-cache
 export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
 
-conda activate $CONDA_ENV_SRC/ctsm-api
+conda activate $CONDA_ENV_SRC/ctsm-env
 
 # Path to output dir
 SUBSET_OUT_DIR=/cluster/home/evaler/fates_incline/inputdata/skj_pt_gswp3

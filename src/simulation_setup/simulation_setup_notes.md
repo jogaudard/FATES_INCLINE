@@ -2,7 +2,7 @@
 
 This document was created 2025-05-12 and is heavily inspired by https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
 
-This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. 
+This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. CTSM and my own forcing data (subset and modified from defaults) are stored on my home folder (/cluster/home/evaler/), shared default data is available in the project (for the data subsetting), and the FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
 
 ## Simulations
 
@@ -25,11 +25,9 @@ Download the Community Terrestrial Systems Model (incl. CLM)
 ```
 git clone https://github.com/NorESMhub/CTSM.git
 cd CTSM
-git checkout tags/ctsm5.3.11-noresm_v2 -b ctsm5.3.11-noresm_v2
+git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 ./bin/git-fleximod update
 ```
-
-Possibly load some modules? `module load ESMF/8.6.0-foss-2023a`
 
 ## Download data
 
@@ -53,7 +51,7 @@ Unzip the folders into Betzy login node folder fates_incline/ALP4-GSWP3 etc with
 
 **ALTERNATIVE** Use new data
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
-
+Stored under /cluster/home/evaler/inputdata
 
 ### Changes to manually specify input data location
 
@@ -61,7 +59,7 @@ Replace the contents of this file with the code below: CTSM/tools/site_and_regio
 
 ```
 [main]
-clmforcingindir = /cluster/home/evaler/fates_incline/inputdata
+clmforcingindir = /cluster/home/evaler/inputdata
 
 [datm_gswp3]
 # dir not changed! see if this works... 
@@ -112,13 +110,28 @@ mv user_nl_datm_streams user_nl_datm_streams_default
 cp /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/user_mods/user_nl_datm_streams user_nl_datm_streams
 ```
 
-Then we set some simulation settings. Make a short script, fates_incline/SKJ1PT_DA-GSWP3_PTS/xmlchange_DA-GSWP3.sh, with all the xml changes needed. (Took this one out again because there was an error: `./xmlchange VCGSITE=ALP4`)
-ESMFMKFILE
+Then we set some simulation settings. Make a short script, fates_incline/SKJ1PT_DA-GSWP3_PTS/xmlchange_DA-GSWP3.sh, with all the xml changes needed. 
+
 ```
 chmod +x xmlchange_DA-GSWP3.sh
 cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
 ./cluster/home/evaler/FATES_INCLINE/src/simulation_setup/xmlchange_DA-GSWP3.sh
 ```
+
+### Modify SLA and create grass-only FATES parameter file
+
+Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. fates_leaf_slatop set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default)
+Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/
+chmod u+x modify_FATES_PFTs.sh
+./modify_FATES_PFTs.sh
+```
+
+When/how do I set the fates parameter file for each case? 
+
+### Build the case
 
 Then, build the case so it is ready for running, and run a check to see if there are any issues. If the case has already been built before and you need to change something, run `./case.build --clean` first.
 
@@ -135,13 +148,26 @@ The final step is to submit a job to run the model. See https://documentation.si
 ./case.submit
 ```
 
-Go to /cluster/work/users/evaler/noresm/ to find the output. Copy/move it back to the home directory if necessary. 
+### Download case folder and model output
+
+The output from a case will be in /cluster/work/users/evaler/archive/<casename>. The output is given as monthly files, so I will combine them first so it's easier to plot and work with a single file. Combine the files, then download all the output to do analysis offline.
+Download the case folder first, then download the outputs to that case folder. 
+
+First, concatenate/combine history files for a given case name:
 
 ```
-cp /cluster/work/users/evaler/noresm/
-mv
+chmod u+x ./download_case.sh
+./concatenate_case.sh SKJ1PT_DA-GSWP3
+```
+
+Then open a local wsl terminal and download the case folder and history archive:
 
 ```
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/SKJ1PT_DA-GSWP3  /mnt/c/Users/evaler/model_output
+mkdir /mnt/c/Users/evaler/model_output/SKJ1PT_DA-GSWP3/archive
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/SKJ1PT_DA-GSWP3  /mnt/c/Users/evaler/model_output/SKJ1PT_DA-GSWP3/archive
+```
+
 
 --------------------------
 
@@ -155,6 +181,6 @@ scancel <jobID>
 # model versions/tags
 ./bin/git-fleximod status
 
-# data usage
+# data usage and quota
 dusage
 ```

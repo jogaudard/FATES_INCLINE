@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/SKJ1PT_DA-GSWP3
+
 ./xmlchange NTASKS=1  
 ./xmlchange DATM_MODE=CLMGSWP3v1
 ./xmlchange STOP_N=5 
