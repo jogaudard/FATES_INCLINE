@@ -4,8 +4,6 @@ This document was created 2025-05-12 and is heavily inspired by https://hackmd.i
 
 This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. CTSM and my own forcing data (subset and modified from defaults) are stored on my home folder (/cluster/home/evaler/), shared default data is available in the project (for the data subsetting), and the FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
 
-## Simulations
-
 The goal is to perform:
 
 * two initial out-of-the-box simulations (B - baseline), but with improved surface data changed according to local observations. One will include all the default PFTs (A), while the other will be restricted to grass PFTs only (G). These will use a 2000 compset and cold start, thus representing a recent climate and *not* historical progression. The goal is to see how the model performs out of the box, and run simulations that are long enough to get an equilibrium with the climate and stable soil properties. These serve two purposes: First, results from the last 10(?) years will be reported on as the model's baseline for the site. Second, restart files from these two simulations will be re-used as spinup for the subsequent simulations.
@@ -18,7 +16,7 @@ The goal is to perform:
 	
 All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
-## Initial set up of model 
+## 1. Initial set up of model 
 
 Download the Community Terrestrial Systems Model (incl. CLM)
 
@@ -29,13 +27,15 @@ git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 ./bin/git-fleximod update
 ```
 
-## Set up model input data
+## 2. Set up model input data
 
 Store model input data (atmospheric forcing, durface data, domain) under /cluster/home/evaler/inputdata. 
 
-Check whether it's possible to re-use the data from the old setup, at least the atmospheric forcing. 
+### 2.1 Download forcing data
 
-Prepared single-site forcing available on GitHub, modified from the [NorESM-LSP](). All these prepared folders include modified surface data (see [the dataprep_surfacedata notebook](https://github.com/evalieungh/FATES_INCLINE/blob/main/src/data_handling/dataprep_surfacedata.ipynb)). Zipped files are available for GSWP3, COSMO, and COSMO-Warmed under [evalieungh/FATES_INCLINE/main/data/](https://github.com/evalieungh/FATES_INCLINE/tree/main/data).
+Check whether it's possible to re-use the data from the old setup (tag v1.0), at least the atmospheric forcing. 
+
+Prepared single-site forcing available on GitHub, modified from the NorESM-LSP. All these prepared folders include modified surface data (see [the dataprep_surfacedata notebook](https://github.com/evalieungh/FATES_INCLINE/blob/main/src/data_handling/dataprep_surfacedata.ipynb)). Zipped files are available for GSWP3, COSMO, and COSMO-Warmed under [evalieungh/FATES_INCLINE/main/data/](https://github.com/evalieungh/FATES_INCLINE/tree/main/data).
 
 Download the data using direct download links to the zipped files for ALP4 (Skjellingahaugen):
 
@@ -51,6 +51,68 @@ wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_c
 
 Unzip the folders into Betzy login node folder fates_incline/ALP4-GSWP3 etc with `unzip`
 
+### 2.2 Changes to manually specify input data location
+
+Replace the contents of this file with the code below: `CTSM/tools/site_and_regional/default_data_2000.cfg`.
+
+```
+[main]
+clmforcingindir = /cluster/home/evaler/inputdata
+
+[datm_crujra]
+dir = atm/datm7/atm_forcing.datm7.CRUJRA.0.5d.c20241231/three_stream
+domain = domain.crujra_v2.3_0.5x0.5.c220801.nc
+solardir = .
+precdir = .
+tpqwdir = .
+solartag = clmforc.CRUJRAv2.5_0.5x0.5.Solr.
+prectag = clmforc.CRUJRAv2.5_0.5x0.5.Prec.
+tpqwtag = clmforc.CRUJRAv2.5_0.5x0.5.TPQWL.
+solarname = CLMCRUJRA2024.Solar
+precname = CLMCRUJRA2024.Precip
+tpqwname = CLMCRUJRA2024.TPQW
+
+[datm_gswp3]
+dir = skj_pt_gswp3/datmdata
+domain = domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
+solardir = Solar
+precdir = Precip
+tpqwdir = TPHWL
+solartag = clmforc.GSWP3.c2011.0.5x0.5.Solr.
+prectag = clmforc.GSWP3.c2011.0.5x0.5.Prec.
+tpqwtag = clmforc.GSWP3.c2011.0.5x0.5.TPQWL.
+solarname = CLMGSWP3v1.Solar
+precname = CLMGSWP3v1.Precip
+tpqwname = CLMGSWP3v1.TPQW
+
+[surfdat]
+dir = .
+surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250521.nc
+surfdat_78pft = surfdata_0.9x1.25_hist_2000_78pfts_c240908.nc
+mesh_dir = /cluster/shared/noresm/inputdata/share/meshes/
+mesh_surf = fv0.9x1.25_141008_ESMFmesh.nc
+
+[landuse]
+dir = /cluster/shared/noresm/inputdata/lnd/clm2/surfdata_esmf/ctsm5.3.0
+landuse_16pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
+landuse_78pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
+
+[domain]
+file = /cluster/home/evaler/inputdata/skj_pt_gswp3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
+```
+
+(old surface data file name: surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc)
+
+In addition, change the default forcing line in `CTSM/python/ctsm/subset_data.py` from CRUJRA to GSWP3 at line 579
+
+```
+# from
+ datm_type = "datm_crujra"  # also available: datm_type = "datm_gswp3"
+
+# to
+ datm_type = "datm_gswp3" 
+```
+
 ### **ALTERNATIVE** Use new data
 
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
@@ -64,6 +126,7 @@ First, manually upload the following Vestland Climate Grid data files (from http
 - VCG_clean_soilmoisture_plotlevel_2015-2018.csv
 
 Then run this shell script that executes a python script to read and process data and create a modified version, and replaces the surface data in the input data folders with the new modified version:
+
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod +x surfacedata_mod_exec.sh
@@ -71,30 +134,19 @@ chmod +x surfacedata_modification.py
 ./surfacedata_mod_exec.sh
 ```
 
-### Changes to manually specify input data location
+### Modify SLA and create grass-only FATES parameter file
 
-Replace the contents of this file with the code below: CTSM/tools/site_and_regional/default_data_2000.cfg.
+Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. For fates_leaf_slatop, set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default). Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
+
+The script first makes a copy of the default parameter file and renames it `fates_params_default_unchanged.cdl`. 
 
 ```
-[main]
-clmforcingindir = /cluster/home/evaler/inputdata
-
-[datm_gswp3]
-# dir not changed! see if this works... 
-domain = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
-
-[surfdat]
-dir = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3
-surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250521.nc
-
-[domain]
-file = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/
+chmod u+x modify_FATES_PFTs.sh
+./modify_FATES_PFTs.sh
 ```
 
-(old surface data file name: surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc)
-
-Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. 
-The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). For now I assume that this file is not necessary to change but can be overwritten with namelist changes for specific cases.
+The correct parameterfile must be specified in the namelist (user_nl_clm) of each case if it differs from the (new) default with all PFTs. Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). 
 
 ## setting up cases and running the model
 
@@ -108,10 +160,12 @@ cd /cluster/home/evaler/fates_incline/<casename>
 ./case.setup
 ```
 
-Then, add these namelist changes to user_nl_clm (inside case directory):
+Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` for the relevant cases:
 
 ```
 fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250521.nc'
+
+fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.cdl'
 
 use_bedrock = .true.
 
@@ -120,34 +174,15 @@ hist_nhtfrq = 0,-24
 hist_mfilt = 12,30
 ```
 
-# Also, replace the default user_nl_datm_streams with the one from the (modified) LSP data
-# 
-# ```
-# cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
-# mv user_nl_datm_streams user_nl_datm_streams_default
-# cp /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/user_mods/user_nl_datm_streams user_nl_datm_streams
-# ```
+**check whether the default user_nl_datm_streams needs to be replaced!**
 
-Then we set some simulation settings. Make a short script, fates_incline/SKJ1PT_DA-GSWP3_PTS/xmlchange_DA-GSWP3.sh, with all the xml changes needed. 
+Then we set additional simulation settings. Make a short script per case, for example xmlchange_DA-GSWP3.sh, to set the simulation time etc. 
 
 ```
 chmod +x xmlchange_DA-GSWP3.sh
-cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
-./cluster/home/evaler/FATES_INCLINE/src/simulation_setup/xmlchange_DA-GSWP3.sh
+cd /cluster/home/evaler/FATES_INCLINE/src/simulation_setup/
+./xmlchange_DA-GSWP3.sh
 ```
-
-### Modify SLA and create grass-only FATES parameter file
-
-Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. fates_leaf_slatop set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default)
-Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
-
-```
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/
-chmod u+x modify_FATES_PFTs.sh
-./modify_FATES_PFTs.sh
-```
-
-When/how do I set the fates parameter file for each case? 
 
 ### Build the case
 

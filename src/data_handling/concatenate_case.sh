@@ -14,5 +14,5 @@ CASENAME="$1"
 
 # concatenate history files
 ncrcat /cluster/work/users/evaler/archive/$CASENAME/lnd/hist/*.nc \
-       /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/${CASENAME}.concatenated.nc
+       /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/$CASENAME/${CASENAME}.concatenated.nc
 
