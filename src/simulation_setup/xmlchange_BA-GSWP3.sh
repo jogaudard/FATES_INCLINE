@@ -2,7 +2,7 @@
 
 set -e
 
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/SKJ1PT_DA-GSWP3
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 
 ./xmlchange NTASKS=1  
 ./xmlchange DATM_MODE=CLMGSWP3v1

@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Baseline simulation with GSWP3 forcing, All PFTs - (BA-GSWP3)
+# Improved simulation with COSMO-REA6 forcing, Grass PFTs only - (IG-COSMO)
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BA-GSWP3
+CASE_NAME=IA-COSMO
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
-UMODS_ROOT=/cluster/home/evaler/inputdata/skj_pt_gswp3
+UMODS_ROOT=/cluster/home/evaler/inputdata/ALP4-COSMO
+
+export PARAM_FILES=/paramfiles
 
 cd /cluster/home/evaler/CTSM/cime/scripts/
 

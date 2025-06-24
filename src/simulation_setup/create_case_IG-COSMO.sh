@@ -1,7 +1,9 @@
 #!/bin/bash
 
+# Improved simulation with COSMO-REA6 forcing, Grass PFTs only - (IG-COSMO)
+
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=SKJ1PT_IG-COSMO
+CASE_NAME=IG-COSMO
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
 UMODS_ROOT=/cluster/home/evaler/inputdata/ALP4-COSMO

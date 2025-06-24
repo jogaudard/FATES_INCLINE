@@ -1,8 +1,8 @@
 # Simulation setup instructions
 
-This document was created 2025-05-12 and is heavily inspired by https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
+This document was created 2025-05-12 and is inspired by several sources, e.g. https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
 
-This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. CTSM and my own forcing data (subset and modified from defaults) are stored on my home folder (/cluster/home/evaler/), shared default data is available in the project (for the data subsetting), and the FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
+This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. CTSM and my own forcing data (subset and modified from defaults) are stored on my home folder (/cluster/home/evaler/), shared default data is available in the project (for data subsetting), and the FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
 
 The goal is to perform:
 
@@ -14,11 +14,11 @@ The goal is to perform:
 	* COSMO forcing, Grass PFTs - (IG-COSMO)
 	* Warmed COSMO forcing, Grass PFTs, (IG-COSMO-W)
 	
-All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
+All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Open, alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
 ## 1. Initial set up of model 
 
-Download the Community Terrestrial Systems Model (incl. CLM)
+Download the Community Terrestrial Systems Model (incl. CLM), checkout a specific tag and update submodules.
 
 ```
 git clone https://github.com/NorESMhub/CTSM.git
@@ -113,6 +113,16 @@ In addition, change the default forcing line in `CTSM/python/ctsm/subset_data.py
  datm_type = "datm_gswp3" 
 ```
 
+Also, check if line 8 in the Betzy machine specification needs to be overwritten in `CTSM/ccs_config/machines/betzy/config_machines.xml`
+
+```
+# from
+  <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/atm/datm7</DIN_LOC_ROOT_CLMFORC>
+
+# to
+  <DIN_LOC_ROOT_CLMFORC>/cluster/home/evaler/inputdata/skj_pt_gswp3/datmdata</DIN_LOC_ROOT_CLMFORC>
+```
+
 ### **ALTERNATIVE** Use new data
 
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
@@ -150,13 +160,13 @@ The correct parameterfile must be specified in the namelist (user_nl_clm) of eac
 
 ## setting up cases and running the model
 
-Create cases, which will be placed in ~/fates_incline/casename. There is one create case script per case to make sure it's reproducible. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist.
+Create cases, which will be placed in ~/fates_incline/casename. There is one create case script per case to make sure it's reproducible. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
 
 ```
-cd /cluster/home/evaler/FATES_INCLINE/src/simulation_setup/
-./create_case_DA-GSWP3_test.sh
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
+./create_case_BA-GSWP3.sh
 
-cd /cluster/home/evaler/fates_incline/<casename>
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3/
 ./case.setup
 ```
 
@@ -179,8 +189,8 @@ hist_mfilt = 12,30
 Then we set additional simulation settings. Make a short script per case, for example xmlchange_DA-GSWP3.sh, to set the simulation time etc. 
 
 ```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
 chmod +x xmlchange_DA-GSWP3.sh
-cd /cluster/home/evaler/FATES_INCLINE/src/simulation_setup/
 ./xmlchange_DA-GSWP3.sh
 ```
 
@@ -189,9 +199,11 @@ cd /cluster/home/evaler/FATES_INCLINE/src/simulation_setup/
 Then, build the case so it is ready for running, and run a check to see if there are any issues. If the case has already been built before and you need to change something, run `./case.build --clean` first.
 
 ```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.build
 ./check_case
 ```
+
 Build logs, and output from the simulation, will be placed under /cluster/work/users/evaler/noresm/casename. 
 Go there and check the logs just in case to see that there are no errors. 
 
