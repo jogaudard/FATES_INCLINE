@@ -51,6 +51,14 @@ wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_c
 
 Unzip the folders into Betzy login node folder fates_incline/ALP4-GSWP3 etc with `unzip`
 
+Make sure the surface data is in the correct format. Convert from netcdf-4 to cdf5.
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x surfacedata_file_conversion.sh
+./surfacedata_file_conversion.sh
+```
+
 ### 2.2 Changes to manually specify input data location
 
 Replace the contents of this file with the code below: `CTSM/tools/site_and_regional/default_data_2000.cfg`.
@@ -201,7 +209,6 @@ Then, build the case so it is ready for running, and run a check to see if there
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.build
-./check_case
 ```
 
 Build logs, and output from the simulation, will be placed under /cluster/work/users/evaler/noresm/casename. 
