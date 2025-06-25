@@ -20,7 +20,7 @@ export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
 conda activate $CONDA_ENV_SRC/ctsm-env
 
 # Path to output dir
-SUBSET_OUT_DIR=/cluster/home/evaler/fates_incline/inputdata/skj_pt_gswp3
+SUBSET_OUT_DIR=/cluster/home/evaler/inputdata/skj_pt_gswp3
 SITE_NAME=ALP4
 
 # run subset_data script:

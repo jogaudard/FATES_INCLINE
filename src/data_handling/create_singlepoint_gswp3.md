@@ -11,18 +11,6 @@ cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
 ./create_conda_env.sh
 ```
 
-(alternative add this with my name to ~/.bashrc:
-    load_conda () {
-      module --quiet purge
-      module load Miniforge3/24.1.2-0
-      source ${EBROOTMINIFORGE3}/bin/activate
-      export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/lassetk/package-cache
-      export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/lassetk
-
-      echo "Source directory for conda envs stored in var CONDA_ENV_SRC"
-    }
-)
-
 ## 1.2 Define paths to input data files in config file
 
 Make sure GSWP3 is subset instead of CRUJRA. In CTSM/python/ctsm/subset_data.py, change the datm type from datm_crujra to datm_gswp3
@@ -37,7 +25,7 @@ and `CTSM/tools/site_and_regional/default_data_2000.cfg`. Copy and rename this f
 cp /cluster/home/evaler/CTSM/tools/site_and_regional/default_data_2000.cfg /cluster/home/evaler/CTSM/tools/site_and_regional/default_data_2000_default.cfg
 ```
 
-Change the specifies CLM forcing directory to match with data path on Betzy instead, and delete the whole CRUJRA block. It should look like this: 
+Change the specified CLM forcing directory to match with data path on Betzy instead, and delete the whole CRUJRA block. It should look like this: 
 
 ```
 [main]
@@ -93,9 +81,9 @@ surfdat_16pft = surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027
 Following Lasse's notes following https://github.com/NorESMhub/ctsm-api/blob/main/data/create_data.py. 
 
 ```
-cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
-chmod +x subset_point_data.sh
-./subset_point_data.sh
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x subset_on_queue.sh
+./subset_on_queue.sh
 ```
 
 ## 1.4 Remove MPI line
