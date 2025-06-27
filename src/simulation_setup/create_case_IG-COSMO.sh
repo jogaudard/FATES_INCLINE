@@ -6,7 +6,7 @@ CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
 CASE_NAME=IG-COSMO
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
-UMODS_ROOT=/cluster/home/evaler/inputdata/ALP4-COSMO
+UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/ALP4-COSMO
 
 export PARAM_FILES=/paramfiles
 

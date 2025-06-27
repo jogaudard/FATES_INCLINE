@@ -13,7 +13,7 @@ The goal is to perform:
 	* COSMO forcing, All PFTs - (IA-COSMO)
 	* COSMO forcing, Grass PFTs - (IG-COSMO)
 	* Warmed COSMO forcing, Grass PFTs, (IG-COSMO-W)
-	
+
 All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Open, alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
 ## 1. Initial set up of model 
@@ -65,7 +65,7 @@ Replace the contents of this file with the code below: `CTSM/tools/site_and_regi
 
 ```
 [main]
-clmforcingindir = /cluster/home/evaler/inputdata
+clmforcingindir = /cluster/shared/noresm/inputdata
 
 [datm_crujra]
 dir = atm/datm7/atm_forcing.datm7.CRUJRA.0.5d.c20241231/three_stream
@@ -81,7 +81,7 @@ precname = CLMCRUJRA2024.Precip
 tpqwname = CLMCRUJRA2024.TPQW
 
 [datm_gswp3]
-dir = skj_pt_gswp3/datmdata
+dir = /evaler/inputdata/skj_pt_gswp3/datmdata
 domain = domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
 solardir = Solar
 precdir = Precip
@@ -94,19 +94,19 @@ precname = CLMGSWP3v1.Precip
 tpqwname = CLMGSWP3v1.TPQW
 
 [surfdat]
-dir = .
-surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250521.nc
+dir = /evaler/inputdata
+surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250625.nc
 surfdat_78pft = surfdata_0.9x1.25_hist_2000_78pfts_c240908.nc
-mesh_dir = /cluster/shared/noresm/inputdata/share/meshes/
+mesh_dir = /share/meshes/
 mesh_surf = fv0.9x1.25_141008_ESMFmesh.nc
 
 [landuse]
-dir = /cluster/shared/noresm/inputdata/lnd/clm2/surfdata_esmf/ctsm5.3.0
+dir = /lnd/clm2/surfdata_esmf/ctsm5.3.0
 landuse_16pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
 landuse_78pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
 
 [domain]
-file = /cluster/home/evaler/inputdata/skj_pt_gswp3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
+file = domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
 ```
 
 (old surface data file name: surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc)
@@ -128,7 +128,8 @@ Also, check if line 8 in the Betzy machine specification needs to be overwritten
   <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/atm/datm7</DIN_LOC_ROOT_CLMFORC>
 
 # to
-  <DIN_LOC_ROOT_CLMFORC>/cluster/home/evaler/inputdata/skj_pt_gswp3/datmdata</DIN_LOC_ROOT_CLMFORC>
+  <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3/datmdata</DIN_LOC_ROOT_CLMFORC>
+  
 ```
 
 ### **ALTERNATIVE** Use new data
@@ -156,6 +157,8 @@ chmod +x surfacedata_modification.py
 
 Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. For fates_leaf_slatop, set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default). Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
 
+See e.g. <https://fates-users-guide.readthedocs.io/projects/tutorial/en/latest/parameter_file_tools.html>
+
 The script first makes a copy of the default parameter file and renames it `fates_params_default_unchanged.cdl`. 
 
 ```
@@ -181,7 +184,7 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3/
 Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` for the relevant cases:
 
 ```
-fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250521.nc'
+fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250625.nc'
 
 fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.cdl'
 
@@ -192,14 +195,20 @@ hist_nhtfrq = 0,-24
 hist_mfilt = 12,30
 ```
 
-**check whether the default user_nl_datm_streams needs to be replaced!**
+For the restart simulations, the restart file also needs to be added:
 
-Then we set additional simulation settings. Make a short script per case, for example xmlchange_DA-GSWP3.sh, to set the simulation time etc. 
+```
+
+```
+
+
+
+Then we set additional simulation settings. Make a short script per case, for example xmlchange_BA-GSWP3.sh, to set the simulation time etc. 
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
-chmod +x xmlchange_DA-GSWP3.sh
-./xmlchange_DA-GSWP3.sh
+chmod +x xmlchange_BA-GSWP3.sh
+./xmlchange_BA-GSWP3.sh
 ```
 
 ### Build the case

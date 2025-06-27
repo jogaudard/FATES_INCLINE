@@ -11,7 +11,7 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./xmlchange RUN_STARTDATE=2000-01-01,DATM_YR_START=2000,DATM_YR_END=2005
 ./xmlchange DATM_YR_ALIGN=2000
 
-./xmlchange CLM_USRDAT_DIR=/cluster/home/evaler/inputdata/skj_pt_gswp3
+./xmlchange CLM_USRDAT_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3
 ./xmlchange PTS_LON=6.41504
 ./xmlchange PTS_LAT=60.9335
 
