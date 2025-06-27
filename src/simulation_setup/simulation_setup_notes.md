@@ -40,7 +40,6 @@ Prepared single-site forcing available on GitHub, modified from the NorESM-LSP. 
 Download the data using direct download links to the zipped files for ALP4 (Skjellingahaugen):
 
 ```
-cd ~/fates_incline/inputdata
 # GSWP3
 wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4.zip
 # COSMO
@@ -49,7 +48,7 @@ wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_c
 wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_cosmorea_warmed.zip
 ```
 
-Unzip the folders into Betzy login node folder fates_incline/ALP4-GSWP3 etc with `unzip`
+Unzip the folders into Betzy login node folder ALP4-GSWP3 etc with `unzip`
 
 Make sure the surface data is in the correct format. Convert from netcdf-4 to cdf5.
 
@@ -136,7 +135,7 @@ Also, check if line 8 in the Betzy machine specification needs to be overwritten
 
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
 
-### Modify surface data and replace old (LSP) version
+### Modify surface data
 
 First, manually upload the following Vestland Climate Grid data files (from https://osf.io/npfa9) to the data folder (/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF):
 - https://osf.io/s9k7c, VCG_clean_gridded_daily_climate_2008-2022.csv
@@ -152,6 +151,8 @@ chmod +x surfacedata_mod_exec.sh
 chmod +x surfacedata_modification.py
 ./surfacedata_mod_exec.sh
 ```
+
+The finished modified surface data is stored as `/cluster/shared/noresm/inputdata/evaler/inputdata/surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc`
 
 ### Modify SLA and create grass-only FATES parameter file
 
