@@ -2,7 +2,9 @@
 
 This document was created 2025-05-12 and is inspired by several sources, e.g. https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
 
-This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. CTSM and my own forcing data (subset and modified from defaults) are stored on my home folder (/cluster/home/evaler/), shared default data is available in the project (for data subsetting), and the FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
+Created by Eva Lieungh, Yeliz Yilmaz, Lasse T. Keetz and others.
+
+This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. The model repo (CTSM) is stored under my home folder (/cluster/home/evaler/). My own forcing data (subset and modified from defaults), and shared default data (used for subsetting) is available in the project. The FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
 
 The goal is to perform:
 
@@ -18,7 +20,7 @@ All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Cl
 
 ## 1. Initial set up of model 
 
-Download the Community Terrestrial Systems Model (incl. CLM), checkout a specific tag and update submodules.
+Download the Community Terrestrial Systems Model (incl. CLM), checkout a specific tag and update submodules. Used the most recent tag as of May 2025.
 
 ```
 git clone https://github.com/NorESMhub/CTSM.git
@@ -26,10 +28,18 @@ cd CTSM
 git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 ./bin/git-fleximod update
 ```
+Before running more stuff, activate the environment in the terminal you are working in.
+
+```
+module purge 
+module load Miniforge3/24.1.2-0
+conda init
+conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
+```
 
 ## 2. Set up model input data
 
-Store model input data (atmospheric forcing, durface data, domain) under /cluster/home/evaler/inputdata. 
+Store model input data (atmospheric forcing, durface data, domain) under /cluster/shared/noresm/inputdata/evaler/inputdata/. 
 
 ### 2.1 Download forcing data
 
@@ -59,77 +69,6 @@ chmod +x surfacedata_file_conversion.sh
 ```
 
 ### 2.2 Changes to manually specify input data location
-
-Replace the contents of this file with the code below: `CTSM/tools/site_and_regional/default_data_2000.cfg`.
-
-```
-[main]
-clmforcingindir = /cluster/shared/noresm/inputdata
-
-[datm_crujra]
-dir = atm/datm7/atm_forcing.datm7.CRUJRA.0.5d.c20241231/three_stream
-domain = domain.crujra_v2.3_0.5x0.5.c220801.nc
-solardir = .
-precdir = .
-tpqwdir = .
-solartag = clmforc.CRUJRAv2.5_0.5x0.5.Solr.
-prectag = clmforc.CRUJRAv2.5_0.5x0.5.Prec.
-tpqwtag = clmforc.CRUJRAv2.5_0.5x0.5.TPQWL.
-solarname = CLMCRUJRA2024.Solar
-precname = CLMCRUJRA2024.Precip
-tpqwname = CLMCRUJRA2024.TPQW
-
-[datm_gswp3]
-dir = /evaler/inputdata/skj_pt_gswp3/datmdata
-domain = domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
-solardir = Solar
-precdir = Precip
-tpqwdir = TPHWL
-solartag = clmforc.GSWP3.c2011.0.5x0.5.Solr.
-prectag = clmforc.GSWP3.c2011.0.5x0.5.Prec.
-tpqwtag = clmforc.GSWP3.c2011.0.5x0.5.TPQWL.
-solarname = CLMGSWP3v1.Solar
-precname = CLMGSWP3v1.Precip
-tpqwname = CLMGSWP3v1.TPQW
-
-[surfdat]
-dir = /evaler/inputdata
-surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250625.nc
-surfdat_78pft = surfdata_0.9x1.25_hist_2000_78pfts_c240908.nc
-mesh_dir = /share/meshes/
-mesh_surf = fv0.9x1.25_141008_ESMFmesh.nc
-
-[landuse]
-dir = /lnd/clm2/surfdata_esmf/ctsm5.3.0
-landuse_16pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
-landuse_78pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
-
-[domain]
-file = domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
-```
-
-(old surface data file name: surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc)
-
-In addition, change the default forcing line in `CTSM/python/ctsm/subset_data.py` from CRUJRA to GSWP3 at line 579
-
-```
-# from
- datm_type = "datm_crujra"  # also available: datm_type = "datm_gswp3"
-
-# to
- datm_type = "datm_gswp3" 
-```
-
-Also, check if line 8 in the Betzy machine specification needs to be overwritten in `CTSM/ccs_config/machines/betzy/config_machines.xml`
-
-```
-# from
-  <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/atm/datm7</DIN_LOC_ROOT_CLMFORC>
-
-# to
-  <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3/datmdata</DIN_LOC_ROOT_CLMFORC>
-  
-```
 
 ### **ALTERNATIVE** Use new data
 
@@ -172,20 +111,20 @@ The correct parameterfile must be specified in the namelist (user_nl_clm) of eac
 
 ## setting up cases and running the model
 
-Create cases, which will be placed in ~/fates_incline/casename. There is one create case script per case to make sure it's reproducible. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
+Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/casename. Make the 'cases' folder if necessary (`mkdir cases`). There is one create case script per case. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
 ./create_case_BA-GSWP3.sh
 
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3/
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.setup
 ```
 
 Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` for the relevant cases:
 
 ```
-fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250625.nc'
+fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc'
 
 fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.cdl'
 
@@ -202,9 +141,7 @@ For the restart simulations, the restart file also needs to be added:
 
 ```
 
-
-
-Then we set additional simulation settings. Make a short script per case, for example xmlchange_BA-GSWP3.sh, to set the simulation time etc. 
+Then we set additional simulation settings (simulation time etc.). Make a short script per case, for example xmlchange_BA-GSWP3.sh: 
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
@@ -264,6 +201,7 @@ scancel <jobID>
 
 # model versions/tags
 ./bin/git-fleximod status
+git describe --tags
 
 # data usage and quota
 dusage

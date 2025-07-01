@@ -17,7 +17,7 @@ cp /cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3/surfdata_ALP4_
 # Load and activate environment
 module purge
 module load Miniforge3/24.1.2-0
-source ${EBROOTMINIFORGE3}/etc/profile.d/conda.sh
+# source ${EBROOTMINIFORGE3}/etc/profile.d/conda.sh
 conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
 
 # Run the Python script to modify surface data
@@ -27,9 +27,9 @@ python surfacedata_modification.py
 echo "Surface data modification finished"
 
 # Convert the surface data to cdf5 format
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/data
-cp surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc surfdata_ALP4_hist_2000_16pfts_c250625_modified_4.nc
-nccopy -k 'cdf5' surfdata_ALP4_hist_2000_16pfts_c250625_modified_4.nc surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc
+#cd /cluster/work/users/evaler/noresm/FATES_INCLINE/data
+#cp surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc surfdata_ALP4_hist_2000_16pfts_c250625_modified_4.nc
+#nccopy -k 'cdf5' surfdata_ALP4_hist_2000_16pfts_c250625_modified_4.nc surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc
 
 # copy the modified surface data back to the data directory
 cp /cluster/work/users/evaler/noresm/FATES_INCLINE/data/surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc \
