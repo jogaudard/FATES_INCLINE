@@ -23,6 +23,7 @@ All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Cl
 Download the Community Terrestrial Systems Model (incl. CLM), checkout a specific tag and update submodules. Used the most recent tag as of May 2025.
 
 ```
+cd /cluster/home/evaler
 git clone https://github.com/NorESMhub/CTSM.git
 cd CTSM
 git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6

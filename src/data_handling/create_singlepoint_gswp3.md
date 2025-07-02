@@ -4,7 +4,7 @@ Download and manipulate forcing data.
 
 ## 1.1 Create and load conda environment
 
-Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, spefify that packages should be under /cluster/projects/nn9774k/conda/evaler, create and activate the ctsm-env conda environment containing a list of packages listed under CTSM/python.
+Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, spefify that packages should be under /cluster/projects/nn9774k/conda/evaler, and create the ctsm-env conda environment containing a list of packages listed under CTSM/python/conda_env_ctsm_latest.txt.
 
 ```
 cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
@@ -17,7 +17,7 @@ Before running more stuff, activate the environment in the terminal you are work
 module purge 
 module load Miniforge3/24.1.2-0
 conda init
-conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
+conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env2
 ```
 
 ## 1.2 Define paths to input data files in config file

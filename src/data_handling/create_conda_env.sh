@@ -7,10 +7,10 @@ export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/evaler/package-cache
 export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
 
 cd /cluster/home/evaler/CTSM/python
-conda create -p $CONDA_ENV_SRC/ctsm-env
-conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env --file conda_env_ctsm_py_latest.txt
-conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env nco
-conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env netcdf4
+conda create -p $CONDA_ENV_SRC/ctsm-env2
+conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env2 --file conda_env_ctsm_py_latest.txt
+conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env2 nco
+conda install -p /cluster/projects/nn9774k/conda/evaler/ctsm-env2 netcdf4
 
 # to activate:
-# conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
+# conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env2
