@@ -18,7 +18,7 @@ The goal is to perform:
 
 All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Open, alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
-## 1. Initial set up of model 
+## 1. Initial set up of model and environment
 
 Download the Community Terrestrial Systems Model (incl. CLM), checkout a specific tag and update submodules. Used the most recent tag as of May 2025.
 
@@ -29,13 +29,23 @@ cd CTSM
 git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 ./bin/git-fleximod update
 ```
-Before running more stuff, activate the environment in the terminal you are working in.
+
+### 1.1 Create and load conda environment
+
+Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, specify that packages should be under /cluster/projects/nn9774k/conda/evaler, and create the ctsm-env conda environment containing a list of packages listed under CTSM/python/conda_env_ctsm_latest.txt.
+
+```
+cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
+./create_conda_env.sh
+```
+
+Then activate the environment in the terminal you are working in.
 
 ```
 module purge 
 module load Miniforge3/24.1.2-0
 conda init
-conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
+conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env2
 ```
 
 ## 2. Set up model input data
@@ -73,15 +83,16 @@ chmod +x surfacedata_file_conversion.sh
 
 ### **ALTERNATIVE** Use new data
 
-See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
+See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md).
 
 ### Modify surface data
 
 First, manually upload the following Vestland Climate Grid data files (from https://osf.io/npfa9) to the data folder (/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF):
-- https://osf.io/s9k7c, VCG_clean_gridded_daily_climate_2008-2022.csv
+- VCG_clean_gridded_daily_climate_2008-2022.csv (https://osf.io/s9k7c)
 - VCG_clean_soil_chemistry_2009_2010_2013_2015.csv
 - VCG_clean_soil_structure_2013_2014_2018.csv
 - VCG_clean_soilmoisture_plotlevel_2015-2018.csv
+- INCLINE_metadata.csv
 
 Then run this shell script that executes a python script to read and process data and create a modified version, and replaces the surface data in the input data folders with the new modified version:
 
@@ -92,7 +103,14 @@ chmod +x surfacedata_modification.py
 ./surfacedata_mod_exec.sh
 ```
 
-The finished modified surface data is stored as `/cluster/shared/noresm/inputdata/evaler/inputdata/surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc`
+The finished modified surface data is stored as `/cluster/shared/noresm/inputdata/evaler/inputdata/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc`
+
+Copy it into each input data folder so it can be used from there following the standard format in user_nl_clm (e.g. fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc')
+
+```
+cd /cluster/shared/noresm/inputdata/evaler/inputdata
+cp surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc skj_pt_gswp3/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc 
+```
 
 ### Modify SLA and create grass-only FATES parameter file
 
@@ -125,9 +143,11 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` for the relevant cases:
 
 ```
-fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc'
+fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'
 
-fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.cdl'
+fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.nc'
+
+use_excess_ice = .false.
 
 use_bedrock = .true.
 

@@ -20,7 +20,7 @@
 # modifies the surface data, and saves it as a new file.
 
 # import libraries
-import xarray as xr  # NetCDF data handling
+#import xarray as xr  # NetCDF data handling
 import netCDF4 
 import matplotlib.pyplot as plt  # Plotting
 import time  # Keeping track of runtime

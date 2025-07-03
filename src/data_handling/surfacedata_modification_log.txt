@@ -1,10 +1,3 @@
-[evaler@login-3.BETZY /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling]$ ./surfacedata_mod_exec.sh
-
-Starting job on login-3 at Fri Jun 27 10:42:26 AM CEST 2025
-The following modules were not unloaded:
-  (Use "module --force purge" to unload all):
-
-  1) StdEnv
 soil moisture ------------------------------
 soil chemistry ------------------------------
 available variables:  ['pH' 'loi' 'NO3N' 'NH4N' 'available_N' 'soil_depth' 'N_content'
@@ -27,6 +20,4 @@ sand %:  4.83557755879932
 clay %:  35.68665841545025
 soil depth, m:  0.14354
 slope:  22.675
-surface data file:  /cluster/work/users/evaler/noresm/FATES_INCLINE/data/surfdata_ALP4_hist_2000_16pfts_c250625_modified.nc
-Surface data modification finished
-Surface data converted and job finished at Fri Jun 27 10:42:54 AM CEST 2025
+surface data file:  /cluster/work/users/evaler/noresm/FATES_INCLINE/data/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc
