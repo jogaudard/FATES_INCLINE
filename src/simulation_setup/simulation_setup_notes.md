@@ -149,12 +149,12 @@ fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_param
 
 use_excess_ice = .false.
 
-use_bedrock = .true.
-
 hist_fincl2 = 'FATES_GPP'
 hist_nhtfrq = 0,-24
 hist_mfilt = 12,30
 ```
+To be able to use the soil depth (zbedrock) modification in the modified surface data, 
+`use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>. 
 
 For the restart simulations, the restart file also needs to be added:
 
