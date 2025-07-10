@@ -2,14 +2,14 @@
 
 set -e
 
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3-bedrockoff
 
 ./xmlchange NTASKS=1  
 ./xmlchange DATM_MODE=CLMGSWP3v1
-./xmlchange STOP_N=11 
+./xmlchange STOP_N=100 
 ./xmlchange STOP_OPTION=nyears
-./xmlchange RUN_STARTDATE=2003-01-01,DATM_YR_START=2003,DATM_YR_END=2014
-./xmlchange DATM_YR_ALIGN=2003
+./xmlchange RUN_STARTDATE=1902-01-01,DATM_YR_START=1902,DATM_YR_END=2002
+./xmlchange DATM_YR_ALIGN=1902
 
 ./xmlchange CLM_USRDAT_NAME=ALP4
 
@@ -17,6 +17,6 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./xmlchange PTS_LON=6.41504
 ./xmlchange PTS_LAT=60.9335
 
-./xmlchange JOB_WALLCLOCK_TIME=04:59:00
+./xmlchange JOB_WALLCLOCK_TIME=09:59:00
 
-#./xmlchange CLM_FORCE_COLDSTART=on
+./xmlchange CLM_FORCE_COLDSTART=on

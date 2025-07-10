@@ -3,9 +3,9 @@
 # Baseline simulation with GSWP3 forcing, All PFTs - (BA-GSWP3)
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BA-GSWP3-bedrock
+CASE_NAME=BA-GSWP3-bedrock-1850
 PROJECT=nn9774k
-COMPSET=I2000Clm50Fates
+COMPSET=1850_DATM%GSWP3v1_CLM50%FATES_SICE_SOCN_MOSART_SGLC_SWAV
 UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3
 
 cd /cluster/home/evaler/CTSM/cime/scripts/

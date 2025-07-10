@@ -45,7 +45,7 @@ Then activate the environment in the terminal you are working in.
 module purge 
 module load Miniforge3/24.1.2-0
 conda init
-conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env2
+conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
 ```
 
 ## 2. Set up model input data
@@ -128,6 +128,9 @@ chmod u+x modify_FATES_PFTs.sh
 
 The correct parameterfile must be specified in the namelist (user_nl_clm) of each case if it differs from the (new) default with all PFTs. Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). 
 
+## Try restarting from short run where the bedrock setting is off
+See <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
+
 ## setting up cases and running the model
 
 Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/casename. Make the 'cases' folder if necessary (`mkdir cases`). There is one create case script per case. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
@@ -159,7 +162,8 @@ To be able to use the soil depth (zbedrock) modification in the modified surface
 For the restart simulations, the restart file also needs to be added:
 
 ```
-
+finidat = ‘full_path_to_restart_file.clm2.r.0000.nc’
+finidat = '/cluster/work/users/evaler/noresm/BA-GSWP3-bedrockoff/run/BA-GSWP3-bedrockoff.clm2.r.2002-01-01-00000.nc'
 ```
 
 Then we set additional simulation settings (simulation time etc.). Make a short script per case, for example xmlchange_BA-GSWP3.sh: 
@@ -199,10 +203,13 @@ First, concatenate/combine history files for a given case name:
 
 ```
 chmod u+x ./download_case.sh
-./concatenate_case.sh SKJ1PT_DA-GSWP3
+./concatenate_case.sh BA-GSWP3
 ```
+NB! If there are multiple history tapes, these should be concatenated separately. Add it to the script ^ or do it manually if necessary. 
 
-Then open a local wsl terminal and download the case folder and history archive:
+NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version can open new model output after conversion to NetCDF4. 
+
+Then open a local wsl terminal and download the case folder and history archive (or right-click and download from VScode setup):
 
 ```
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/SKJ1PT_DA-GSWP3  /mnt/c/Users/evaler/model_output
@@ -226,4 +233,7 @@ git describe --tags
 
 # data usage and quota
 dusage
+
+# NetCDF version conversion
+nccopy -k 'cdf5' input.nc output.nc
 ```
