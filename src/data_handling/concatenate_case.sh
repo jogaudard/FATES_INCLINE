@@ -16,3 +16,5 @@ CASENAME="$1"
 ncrcat /cluster/work/users/evaler/archive/$CASENAME/lnd/hist/$CASENAME.clm2.h0*.nc \
        /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/$CASENAME/${CASENAME}.h0.concatenated.nc
 
+# make a copy in older version (4) of netCDF for inspection in Panoply
+nccopy -k 'netCDF-4' /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/$CASENAME/${CASENAME}.h0.concatenated.nc /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/$CASENAME/${CASENAME}.h0.concatenated_nc4.nc

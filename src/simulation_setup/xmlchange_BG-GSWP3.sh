@@ -17,5 +17,5 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BG-GSWP3
 ./xmlchange PTS_LON=6.41504
 ./xmlchange PTS_LAT=60.9335
 
-./xmlchange JOB_WALLCLOCK_TIME=03:59:00
+./xmlchange JOB_WALLCLOCK_TIME=09:59:00
 ./xmlchange CLM_FORCE_COLDSTART=on
