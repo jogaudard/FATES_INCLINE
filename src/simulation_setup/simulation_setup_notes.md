@@ -143,7 +143,7 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.setup
 ```
 
-Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` for the relevant cases:
+Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` or `fates_params_grazing_grassonly.nc` for the relevant cases:
 
 ```
 fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'
@@ -153,7 +153,7 @@ fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_param
 use_excess_ice = .false.
 
 ```
-To be able to use the soil depth (zbedrock) modification in the modified surface data, 
+NB! To be able to use the soil depth (zbedrock) modification in the modified surface data, 
 `use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>. 
 
 For the restart simulations, the restart file also needs to be added:
