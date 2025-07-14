@@ -20,7 +20,7 @@ export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
 conda activate $CONDA_ENV_SRC/ctsm-env
 
 # Path to output dir
-SUBSET_OUT_DIR=/cluster/home/evaler/fates_incline/inputdata/skj_pt_gswp3
+SUBSET_OUT_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3
 SITE_NAME=ALP4
 
 # run subset_data script:
@@ -28,3 +28,5 @@ cd /cluster/home/evaler/CTSM/tools/site_and_regional
 ./subset_data point --site $SITE_NAME --lat 60.9335 --lon 6.41504 --create-surface \
 --create-domain --create-user-mods --create-datm --overwrite --verbose --outdir $SUBSET_OUT_DIR \
 --cfg-file /cluster/home/evaler/CTSM/tools/site_and_regional/default_data_2000.cfg
+
+# [--datm-syr DATM_SYR] [--datm-eyr DATM_EYR]

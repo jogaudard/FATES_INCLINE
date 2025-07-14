@@ -1,10 +1,10 @@
 # Simulation setup instructions
 
-This document was created 2025-05-12 and is heavily inspired by https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
+This document was created 2025-05-12 and is inspired by several sources, e.g. https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
 
-This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. CTSM and my own forcing data (subset and modified from defaults) are stored on my home folder (/cluster/home/evaler/), shared default data is available in the project (for the data subsetting), and the FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
+Created by Eva Lieungh, Yeliz Yilmaz, Lasse T. Keetz and others.
 
-## Simulations
+This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. The model repo (CTSM) is stored under my home folder (/cluster/home/evaler/). My own forcing data (subset and modified from defaults), and shared default data (used for subsetting) is available in the project. The FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
 
 The goal is to perform:
 
@@ -15,32 +15,52 @@ The goal is to perform:
 	* COSMO forcing, All PFTs - (IA-COSMO)
 	* COSMO forcing, Grass PFTs - (IG-COSMO)
 	* Warmed COSMO forcing, Grass PFTs, (IG-COSMO-W)
-	
-All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
-## Initial set up of model 
+All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Open, alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
-Download the Community Terrestrial Systems Model (incl. CLM)
+## 1. Initial set up of model and environment
+
+Download the Community Terrestrial Systems Model (incl. CLM), checkout a specific tag and update submodules. Used the most recent tag as of May 2025.
 
 ```
+cd /cluster/home/evaler
 git clone https://github.com/NorESMhub/CTSM.git
 cd CTSM
 git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 ./bin/git-fleximod update
 ```
 
-## Set up model input data
+### 1.1 Create and load conda environment
 
-Store model input data (atmospheric forcing, durface data, domain) under /cluster/home/evaler/inputdata. 
+Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, specify that packages should be under /cluster/projects/nn9774k/conda/evaler, and create the ctsm-env conda environment containing a list of packages listed under CTSM/python/conda_env_ctsm_latest.txt.
 
-Check whether it's possible to re-use the data from the old setup, at least the atmospheric forcing. 
+```
+cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
+./create_conda_env.sh
+```
 
-Prepared single-site forcing available on GitHub, modified from the [NorESM-LSP](). All these prepared folders include modified surface data (see [the dataprep_surfacedata notebook](https://github.com/evalieungh/FATES_INCLINE/blob/main/src/data_handling/dataprep_surfacedata.ipynb)). Zipped files are available for GSWP3, COSMO, and COSMO-Warmed under [evalieungh/FATES_INCLINE/main/data/](https://github.com/evalieungh/FATES_INCLINE/tree/main/data).
+Then activate the environment in the terminal you are working in.
+
+```
+module purge 
+module load Miniforge3/24.1.2-0
+conda init
+conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
+```
+
+## 2. Set up model input data
+
+Store model input data (atmospheric forcing, durface data, domain) under /cluster/shared/noresm/inputdata/evaler/inputdata/. 
+
+### 2.1 Download forcing data
+
+Check whether it's possible to re-use the data from the old setup (tag v1.0), at least the atmospheric forcing. 
+
+Prepared single-site forcing available on GitHub, modified from the NorESM-LSP. All these prepared folders include modified surface data (see [the dataprep_surfacedata notebook](https://github.com/evalieungh/FATES_INCLINE/blob/main/src/data_handling/dataprep_surfacedata.ipynb)). Zipped files are available for GSWP3, COSMO, and COSMO-Warmed under [evalieungh/FATES_INCLINE/main/data/](https://github.com/evalieungh/FATES_INCLINE/tree/main/data).
 
 Download the data using direct download links to the zipped files for ALP4 (Skjellingahaugen):
 
 ```
-cd ~/fates_incline/inputdata
 # GSWP3
 wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4.zip
 # COSMO
@@ -49,21 +69,33 @@ wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_c
 wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_cosmorea_warmed.zip
 ```
 
-Unzip the folders into Betzy login node folder fates_incline/ALP4-GSWP3 etc with `unzip`
+Unzip the folders into Betzy login node folder ALP4-GSWP3 etc with `unzip`
+
+Make sure the surface data is in the correct format. Convert from netcdf-4 to cdf5.
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x surfacedata_file_conversion.sh
+./surfacedata_file_conversion.sh
+```
+
+### 2.2 Changes to manually specify input data location
 
 ### **ALTERNATIVE** Use new data
 
-See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md)
+See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md).
 
-### Modify surface data and replace old (LSP) version
+### Modify surface data
 
 First, manually upload the following Vestland Climate Grid data files (from https://osf.io/npfa9) to the data folder (/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF):
-- https://osf.io/s9k7c, VCG_clean_gridded_daily_climate_2008-2022.csv
+- VCG_clean_gridded_daily_climate_2008-2022.csv (https://osf.io/s9k7c)
 - VCG_clean_soil_chemistry_2009_2010_2013_2015.csv
 - VCG_clean_soil_structure_2013_2014_2018.csv
 - VCG_clean_soilmoisture_plotlevel_2015-2018.csv
+- INCLINE_metadata.csv
 
 Then run this shell script that executes a python script to read and process data and create a modified version, and replaces the surface data in the input data folders with the new modified version:
+
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod +x surfacedata_mod_exec.sh
@@ -71,75 +103,22 @@ chmod +x surfacedata_modification.py
 ./surfacedata_mod_exec.sh
 ```
 
-### Changes to manually specify input data location
+The finished modified surface data is stored as `/cluster/shared/noresm/inputdata/evaler/inputdata/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc`
 
-Replace the contents of this file with the code below: CTSM/tools/site_and_regional/default_data_2000.cfg.
-
-```
-[main]
-clmforcingindir = /cluster/home/evaler/inputdata
-
-[datm_gswp3]
-# dir not changed! see if this works... 
-domain = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
-
-[surfdat]
-dir = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3
-surfdat_16pft = surfdata_ALP4_hist_2000_16pfts_c250521.nc
-
-[domain]
-file = /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/domain.lnd.fv0.9x1.25_gx1v7_ALP4_c221027.nc
-```
-
-(old surface data file name: surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027.nc)
-
-Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. 
-The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). For now I assume that this file is not necessary to change but can be overwritten with namelist changes for specific cases.
-
-## setting up cases and running the model
-
-Create cases, which will be placed in ~/fates_incline/casename. There is one create case script per case to make sure it's reproducible. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist.
+Copy it into each input data folder so it can be used from there following the standard format in user_nl_clm (e.g. fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc')
 
 ```
-cd /cluster/home/evaler/FATES_INCLINE/src/simulation_setup/
-./create_case_DA-GSWP3_test.sh
-
-cd /cluster/home/evaler/fates_incline/<casename>
-./case.setup
-```
-
-Then, add these namelist changes to user_nl_clm (inside case directory):
-
-```
-fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250521.nc'
-
-use_bedrock = .true.
-
-hist_fincl2 = 'FATES_GPP'
-hist_nhtfrq = 0,-24
-hist_mfilt = 12,30
-```
-
-# Also, replace the default user_nl_datm_streams with the one from the (modified) LSP data
-# 
-# ```
-# cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
-# mv user_nl_datm_streams user_nl_datm_streams_default
-# cp /cluster/home/evaler/fates_incline/inputdata/ALP4-GSWP3/user_mods/user_nl_datm_streams user_nl_datm_streams
-# ```
-
-Then we set some simulation settings. Make a short script, fates_incline/SKJ1PT_DA-GSWP3_PTS/xmlchange_DA-GSWP3.sh, with all the xml changes needed. 
-
-```
-chmod +x xmlchange_DA-GSWP3.sh
-cd /cluster/home/evaler/fates_incline/SKJ1PT_DA-GSWP3_test
-./cluster/home/evaler/FATES_INCLINE/src/simulation_setup/xmlchange_DA-GSWP3.sh
+cd /cluster/shared/noresm/inputdata/evaler/inputdata
+cp surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc skj_pt_gswp3/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc 
 ```
 
 ### Modify SLA and create grass-only FATES parameter file
 
-Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. fates_leaf_slatop set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default)
-Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
+Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. For fates_leaf_slatop, set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default). Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
+
+See e.g. <https://fates-users-guide.readthedocs.io/projects/tutorial/en/latest/parameter_file_tools.html>
+
+The script first makes a copy of the default parameter file and renames it `fates_params_default_unchanged.cdl`. 
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/
@@ -147,16 +126,60 @@ chmod u+x modify_FATES_PFTs.sh
 ./modify_FATES_PFTs.sh
 ```
 
-When/how do I set the fates parameter file for each case? 
+The correct parameterfile must be specified in the namelist (user_nl_clm) of each case if it differs from the (new) default with all PFTs. Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). 
+
+## Try restarting from short run where the bedrock setting is off
+See <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
+
+## setting up cases and running the model
+
+Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/casename. Make the 'cases' folder if necessary (`mkdir cases`). There is one create case script per case. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
+./create_case_BA-GSWP3.sh
+
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
+./case.setup
+```
+
+Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` for the relevant cases:
+
+```
+fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'
+
+fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.nc'
+
+use_excess_ice = .false.
+
+```
+To be able to use the soil depth (zbedrock) modification in the modified surface data, 
+`use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>. 
+
+For the restart simulations, the restart file also needs to be added:
+
+```
+finidat = ‘full_path_to_restart_file.clm2.r.0000.nc’
+finidat = '/cluster/work/users/evaler/noresm/BA-GSWP3-bedrockoff/run/BA-GSWP3-bedrockoff.clm2.r.2002-01-01-00000.nc'
+```
+
+Then we set additional simulation settings (simulation time etc.). Make a short script per case, for example xmlchange_BA-GSWP3.sh: 
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
+chmod +x xmlchange_BA-GSWP3.sh
+./xmlchange_BA-GSWP3.sh
+```
 
 ### Build the case
 
 Then, build the case so it is ready for running, and run a check to see if there are any issues. If the case has already been built before and you need to change something, run `./case.build --clean` first.
 
 ```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.build
-./check_case
 ```
+
 Build logs, and output from the simulation, will be placed under /cluster/work/users/evaler/noresm/casename. 
 Go there and check the logs just in case to see that there are no errors. 
 
@@ -177,10 +200,13 @@ First, concatenate/combine history files for a given case name:
 
 ```
 chmod u+x ./download_case.sh
-./concatenate_case.sh SKJ1PT_DA-GSWP3
+./concatenate_case.sh BA-GSWP3
 ```
+NB! If there are multiple history tapes, these should be concatenated separately. Add it to the script ^ or do it manually if necessary. 
 
-Then open a local wsl terminal and download the case folder and history archive:
+NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version can open new model output after conversion to NetCDF4. 
+
+Then open a local wsl terminal and download the case folder and history archive (or right-click and download from VScode setup):
 
 ```
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/SKJ1PT_DA-GSWP3  /mnt/c/Users/evaler/model_output
@@ -200,7 +226,13 @@ scancel <jobID>
 
 # model versions/tags
 ./bin/git-fleximod status
+git describe --tags
 
 # data usage and quota
 dusage
+
+# NetCDF conversion
+nccopy -k 'cdf5' in.nc out.nc
+nccopy -k 'netCDF-4' in.nc out.nc
+ncdump in.nc > out.cdl
 ```

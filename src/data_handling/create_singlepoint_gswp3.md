@@ -2,26 +2,14 @@
 
 Download and manipulate forcing data.
 
-## 1.1 Create and load conda environment
-
-Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, spefify that packages should be under /cluster/projects/nn9774k/conda/evaler, create and activate the ctsm-env conda environment containing a list of packages listed under CTSM/python.
+Before running more stuff, activate the conda environment in the terminal you are working in.
 
 ```
-cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
-./create_conda_env.sh
+module purge 
+module load Miniforge3/24.1.2-0
+conda init
+conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env2
 ```
-
-(alternative add this with my name to ~/.bashrc:
-    load_conda () {
-      module --quiet purge
-      module load Miniforge3/24.1.2-0
-      source ${EBROOTMINIFORGE3}/bin/activate
-      export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/lassetk/package-cache
-      export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/lassetk
-
-      echo "Source directory for conda envs stored in var CONDA_ENV_SRC"
-    }
-)
 
 ## 1.2 Define paths to input data files in config file
 
@@ -37,11 +25,24 @@ and `CTSM/tools/site_and_regional/default_data_2000.cfg`. Copy and rename this f
 cp /cluster/home/evaler/CTSM/tools/site_and_regional/default_data_2000.cfg /cluster/home/evaler/CTSM/tools/site_and_regional/default_data_2000_default.cfg
 ```
 
-Change the specifies CLM forcing directory to match with data path on Betzy instead, and delete the whole CRUJRA block. It should look like this: 
+Change the specified CLM forcing directory to match with data path on Betzy instead. It should look like this: 
 
 ```
 [main]
 clmforcingindir = /cluster/shared/noresm/inputdata
+
+[datm_crujra]
+dir = atm/datm7/atm_forcing.datm7.CRUJRA.0.5d.c20241231/three_stream
+domain = domain.crujra_v2.3_0.5x0.5.c220801.nc
+solardir = .
+precdir = .
+tpqwdir = .
+solartag = clmforc.CRUJRAv2.5_0.5x0.5.Solr.
+prectag = clmforc.CRUJRAv2.5_0.5x0.5.Prec.
+tpqwtag = clmforc.CRUJRAv2.5_0.5x0.5.TPQWL.
+solarname = CLMCRUJRA2024.Solar
+precname = CLMCRUJRA2024.Precip
+tpqwname = CLMCRUJRA2024.TPQW
 
 [datm_gswp3]
 dir = atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516
@@ -60,16 +61,39 @@ tpqwname = CLMGSWP3v1.TPQW
 dir = lnd/clm2/surfdata_esmf/ctsm5.3.0
 surfdat_16pft = surfdata_0.9x1.25_hist_2000_16pfts_c240908.nc
 surfdat_78pft = surfdata_0.9x1.25_hist_2000_78pfts_c240908.nc
-mesh_dir = share/meshes/
+mesh_dir = /share/meshes/
 mesh_surf = fv0.9x1.25_141008_ESMFmesh.nc
 
 [landuse]
-dir = lnd/clm2/surfdata_esmf/ctsm5.3.0
+dir = /lnd/clm2/surfdata_esmf/ctsm5.3.0
 landuse_16pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
 landuse_78pft = landuse.timeseries_0.9x1.25_SSP2-4.5_1850-2100_78pfts_c240908.nc
 
 [domain]
-file = share/domains/domain.lnd.fv0.9x1.25_gx1v7.151020.nc
+file = share/domains/domain.lnd.fv0.9x1.25_tnx0.125v4.20221027.nc
+```
+
+
+In addition, change the default forcing line in `CTSM/python/ctsm/subset_data.py` from CRUJRA to GSWP3 at line 579
+
+```
+# from
+ datm_type = "datm_crujra"  # also available: datm_type = "datm_gswp3"
+
+# to
+ datm_type = "datm_gswp3" 
+```
+
+
+Also, check if line 8 in the Betzy machine specification needs to be overwritten in `CTSM/ccs_config/machines/betzy/config_machines.xml`
+
+```
+# from
+  <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/atm/datm7</DIN_LOC_ROOT_CLMFORC>
+
+# to
+  <DIN_LOC_ROOT_CLMFORC>/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3/datmdata</DIN_LOC_ROOT_CLMFORC>
+  
 ```
 
 The surface data can maybe be copied from the old LSP setup? If so, copy my version of it into the shared storage on Betzy before pointing to it in the same file. Trying without this first, but add later when the rest is working:
@@ -93,13 +117,13 @@ surfdat_16pft = surfdata_0.9x1.25_hist_16pfts_Irrig_CMIP6_simyr2000_ALP4_c221027
 Following Lasse's notes following https://github.com/NorESMhub/ctsm-api/blob/main/data/create_data.py. 
 
 ```
-cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
-chmod +x subset_point_data.sh
-./subset_point_data.sh
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x subset_on_queue.sh
+./subset_on_queue.sh & > subset_data_output.txt
 ```
 
 ## 1.4 Remove MPI line
 
-By default, there is a line with MPI settings in `shell_commands` created by the subsetting process. This needs to be deleted. Open fates_incline/inputdata/skj_pt_gswp3/user_mods/shell_commands and delete that line!
+By default, there is a line with MPI settings in `shell_commands` created by the subsetting process. This needs to be deleted. Open inputdata/skj_pt_gswp3/user_mods/shell_commands and delete that line!
 
 `./xmlchange MPILIB=mpi-serial`

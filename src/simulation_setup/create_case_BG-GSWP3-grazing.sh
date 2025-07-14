@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Baseline simulation with GSWP3 forcing, All PFTs - (BA-GSWP3)
+# Baseline simulation with GSWP3 forcing, Grass PFTs only - (BG-GSWP3)
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BA-GSWP3
+CASE_NAME=BG-GSWP3-grazing
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
 UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3

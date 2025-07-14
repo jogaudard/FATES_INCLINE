@@ -20,7 +20,7 @@
 # modifies the surface data, and saves it as a new file.
 
 # import libraries
-import xarray as xr  # NetCDF data handling
+#import xarray as xr  # NetCDF data handling
 import netCDF4 
 import matplotlib.pyplot as plt  # Plotting
 import time  # Keeping track of runtime
@@ -37,10 +37,10 @@ import glob # for wildcard * searching in file names
 observations_path = Path(f"/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF")
 
 # set path to default surface data
-surfacedata_path = Path(f"/cluster/home/evaler/inputdata/skj_pt_gswp3")
+#surfacedata_path = Path(f"/cluster/shared/noresm/inputdata/evaler/inputdata")
 
-# set path for where to store modified surface data
-modified_surfacedata_path = str(Path(f"/cluster/home/evaler/inputdata"))
+# set path to surface data file to be modified 
+modified_surfacedata_path = str(Path(f"/cluster/work/users/evaler/noresm/FATES_INCLINE/data"))
 
 # define LSP site identities and corresponding names 
 siteID = ["ALP1","ALP2","ALP3","ALP4","SUB1","SUB2","SUB3","SUB4","BOR1","BOR2","BOR3","BOR4"]

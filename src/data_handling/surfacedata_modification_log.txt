@@ -1,0 +1,23 @@
+soil moisture ------------------------------
+soil chemistry ------------------------------
+available variables:  ['pH' 'loi' 'NO3N' 'NH4N' 'available_N' 'soil_depth' 'N_content'
+ 'C_content' 'CN_ratio']
+site names:  ['Arhelleren' 'Fauske' 'Gudmedalen' 'Hogsete' 'Lavisdalen' 'Rambera'
+ 'Skjelingahaugen' 'Ulvehaugen' 'Veskre' 'Vikesland' 'Ovstedalen' 'Alrust']
+soil structure ------------------------------
+available variables:  ['soil_depth' 'clay' 'silt' 'sand' 'bulk_density']
+site names:  ['Arhelleren' 'Alrust' 'Fauske' 'Gudmedalen' 'Hogsete' 'Lavisdalen'
+ 'Ovstedalen' 'Rambera' 'Skjelingahaugen' 'Ulvehaugen' 'Veskre'
+ 'Vikesland' 'ARH']
+sites with clay/silt/sand observations:  ['Ulvehaugen' 'Lavisdalen' 'Gudmedalen' 'Skjelingahaugen']
+site metadata, slope ------------------------------
+-------------------------------------
+site:  ALP4 Skjellingahaugen
+mean carbon content (%):  2.1644
+bulk density (g/cm^3):    0.5624815030692167
+organic matter for model (kg/m3):  20.990258021431256
+sand %:  4.83557755879932
+clay %:  35.68665841545025
+soil depth, m:  0.14354
+slope:  22.675
+surface data file:  /cluster/work/users/evaler/noresm/FATES_INCLINE/data/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc
