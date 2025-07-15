@@ -52,7 +52,7 @@ conda activate /cluster/projects/nn9774k/conda/evaler/ctsm-env
 
 Store model input data (atmospheric forcing, durface data, domain) under /cluster/shared/noresm/inputdata/evaler/inputdata/. 
 
-### 2.1 Download forcing data
+### 2.1 Atmospheric forcing data
 
 Check whether it's possible to re-use the data from the old setup (tag v1.0), at least the atmospheric forcing. 
 
@@ -79,13 +79,11 @@ chmod +x surfacedata_file_conversion.sh
 ./surfacedata_file_conversion.sh
 ```
 
-### 2.2 Changes to manually specify input data location
-
-### **ALTERNATIVE** Use new data
+### 2.2  **ALTERNATIVE** Use new data
 
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md).
 
-### Modify surface data
+### 2.3 Modify surface data
 
 First, manually upload the following Vestland Climate Grid data files (from https://osf.io/npfa9) to the data folder (/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF):
 - VCG_clean_gridded_daily_climate_2008-2022.csv (https://osf.io/s9k7c)
@@ -104,7 +102,6 @@ chmod +x surfacedata_modification.py
 ```
 
 The finished modified surface data is stored as `/cluster/shared/noresm/inputdata/evaler/inputdata/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc`
-
 Copy it into each input data folder so it can be used from there following the standard format in user_nl_clm (e.g. fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc')
 
 ```
@@ -112,7 +109,7 @@ cd /cluster/shared/noresm/inputdata/evaler/inputdata
 cp surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc skj_pt_gswp3/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc 
 ```
 
-### Modify SLA and create grass-only FATES parameter file
+### 2.4 Modify SLA and grazing, and create grass-only FATES parameter file
 
 Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. For fates_leaf_slatop, set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default). Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
 
@@ -128,10 +125,28 @@ chmod u+x modify_FATES_PFTs.sh
 
 The correct parameterfile must be specified in the namelist (user_nl_clm) of each case if it differs from the (new) default with all PFTs. Also check `CTSM/bld/namelist_files/namelist_defauls_ctsm.xml`. The FATES parameter file is set on line 536 (and the CLM parameter file just above on L58). 
 
-## Try restarting from short run where the bedrock setting is off
-See <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
+New as of early 2025, FATES can also perform a simple grazing process. See <https://github.com/NGEET/fates/pull/1140>.
+It applies to fates-sci.1.80.14_api.37.0.0-ctsm5.3.024 and newer. By default, grazing is only supposed to apply to the 'rangeland' (and pasture?) land use class, but I want to add it to all the land use classes to make sure it applies to my site as well. The grazing rate may be necessary to adjust, but I will set it to a relatively small amount for testing (0.05 relative intensity of leaf grazing/browsing).
 
-## setting up cases and running the model
+See these relevant FATES parameters:
+
+| parameter | notes     | longname |
+| --------- | --------- | -------- |
+|  fates_landuseclass_name =  "primaryland",   "secondaryland",   "rangeland",   "pastureland",  "cropland" ; | Main FATES will by default apply grazing functionality to rangeland (I think) | "Name of the land use classes, for variables associated with dimension fates_landuseclass" |
+| fates_landuse_grazing_rate = 0, 0, 0, 0, 0 ;  | Has same dimensions as land use classes - assume the rate applies to that land use class (first index = primaryland). Set this to some small amount | "fraction of leaf biomass consumed by grazers per day" |
+| fates_landuse_grazing_palatability = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1 ; | By default grazing only applies to grass PFTs. Change to apply to all. Unitless, 0-1 | "Relative intensity of leaf grazing/browsing per PFT" |
+| fates_landuse_grazing_maxheight | in m, by default =1. Change to 1.5? Cows, sheep and elk should be able to reach above 1m I think.  | "maximum height that grazers (browsers, actually) can reach" |
+| fates_landuse_grazing_carbon_use_eff, fates_landuse_grazing_nitrogen_use_eff, fates_landuse_grazing_phosphorus_use_eff, | Do not change for now. | |
+
+Grazing modification is executed with a script: 
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
+chmod+x modify_FATES_grazing_params.sh
+./modify_FATES_grazing_params.sh
+```
+
+## 3. Set up cases and run the model
 
 Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/casename. Make the 'cases' folder if necessary (`mkdir cases`). There is one create case script per case. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
 
@@ -143,6 +158,7 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.setup
 ```
 
+### 3.1 Namelist and xml changes
 Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` or `fates_params_grazing_grassonly.nc` for the relevant cases:
 
 ```
@@ -154,7 +170,8 @@ use_excess_ice = .false.
 
 ```
 NB! To be able to use the soil depth (zbedrock) modification in the modified surface data, 
-`use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>. 
+`use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>.  <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
+
 
 For the restart simulations, the restart file also needs to be added:
 
@@ -171,7 +188,7 @@ chmod +x xmlchange_BA-GSWP3.sh
 ./xmlchange_BA-GSWP3.sh
 ```
 
-### Build the case
+### 3.2 Build the case
 
 Then, build the case so it is ready for running, and run a check to see if there are any issues. If the case has already been built before and you need to change something, run `./case.build --clean` first.
 
@@ -183,7 +200,7 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 Build logs, and output from the simulation, will be placed under /cluster/work/users/evaler/noresm/casename. 
 Go there and check the logs just in case to see that there are no errors. 
 
-### Submit the case
+### 3.3 Submit the case
 
 The final step is to submit a job to run the model.
 
@@ -191,7 +208,9 @@ The final step is to submit a job to run the model.
 ./case.submit
 ```
 
-### Download case folder and model output
+When a case is running, output files will be stored temporarily in the run directory (e.g. /cluster/work/users/evaler/noresm/BA-GSWP3/run) befor it is moved to archive.
+
+## 4. Download case folder and model output
 
 The output from a case will be in /cluster/work/users/evaler/archive/<casename>. The output is given as monthly files, so I will combine them first so it's easier to plot and work with a single file. Combine the files, then download all the output to do analysis offline.
 Download the case folder first, then download the outputs to that case folder. 
@@ -199,6 +218,7 @@ Download the case folder first, then download the outputs to that case folder.
 First, concatenate/combine history files for a given case name:
 
 ```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod u+x ./download_case.sh
 ./concatenate_case.sh BA-GSWP3
 ```
@@ -209,9 +229,9 @@ NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version ca
 Then open a local wsl terminal and download the case folder and history archive (or right-click and download from VScode setup):
 
 ```
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/SKJ1PT_DA-GSWP3  /mnt/c/Users/evaler/model_output
-mkdir /mnt/c/Users/evaler/model_output/SKJ1PT_DA-GSWP3/archive
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/SKJ1PT_DA-GSWP3  /mnt/c/Users/evaler/model_output/SKJ1PT_DA-GSWP3/archive
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3  /mnt/c/Users/evaler/model_output
+mkdir /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/BA-GSWP3  /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 ```
 
 
