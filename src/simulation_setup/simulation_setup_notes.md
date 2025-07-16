@@ -243,6 +243,7 @@ rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/arch
 # jobs
 squeue --me
 scancel <jobID>
+Ctrl z [to stop process running in terminal]
 
 # model versions/tags
 ./bin/git-fleximod status

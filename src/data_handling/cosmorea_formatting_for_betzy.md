@@ -23,25 +23,17 @@ cd ALP4-COSMO
 mv datmdata datmdata_old
 mkdir datmdata
 
-# copy domain files into cosmo dir
+# copy domain, surfacedata, user_mods files into cosmo dir
 cp skj_pt_gswp3/datmdata/domain.lnd.360x720_gswp3.0v1_ALP4_c250701.nc ALP4-COSMO/datmdata/domain.lnd.360x720_gswp3.0v1_ALP4_c250701.nc
+cp skj_pt_gswp3/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc ALP4-COSMO/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc
+cp -r skj_pt_gswp3/user_mods/ ALP4-COSMO/user_mods
 
-# create templates from GSWP3 files
-ncks --cdl clmforc.GSWP3.c2011.0.5x0.5.Solr.ALP4.2001-01.nc > template.cdl
-ncgen -o template.nc template.cdl
-
-# use ncks to overwrite data into that structure
-ncks -A -v FSDS,LONGXY,LATIXY,EDGEE,EDGEW,EDGES,EDGEN,time clm1pt_ALP4_Solr.2014-01.nc template.nc
-
-# rename variables within files
-ncrename -v SWDIFDS_RAD,FSDS clm1pt_ALP4.Solr.*.nc
-ncrename  -v PRECTmms,PRECT clm1pt_ALP4_Prec.2014-01.nc
-
-# rename final file
-mv template.nc clmforc_format_matched_Solr.2014-01.nc
+# go to script and execute formatting
+cd FATES_INCLINE/src/data_handling/
+./cosmorea_formatting.sh
 
 # check whether dimension variables match
-diff <(ncdump -v EDGEN ALP4-COSMO/datmdata/clm1pt_ALP4.Solr.1995-09.nc) <(ncdump -v EDGEN skj_pt_gswp3/datmdata/clmforc.GSWP3.c2011.0.5x0.5.Solr.ALP4.1995-09.nc)
+diff <(ncdump -v EDGEN ALP4-COSMO/datmdata/clmforc.GSWP3.c2011.0.5x0.5.Solr.ALP4.1995-09.nc) <(ncdump -v EDGEN skj_pt_gswp3/datmdata/clmforc.GSWP3.c2011.0.5x0.5.Solr.ALP4.1995-09.nc)
 
 ```
 

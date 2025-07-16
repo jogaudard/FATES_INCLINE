@@ -33,13 +33,13 @@ for infile in "$INPUT_DIR"/clm1pt_ALP4_*.nc; do
     # Define temporary and output filenames
         # solar radiation
     tmpfile_solr="${OUTPUT_DIR}/tmp_Solr_${date_part}.nc"
-    outfile_solr="${OUTPUT_DIR}/clm1pt_ALP4.Solr.${date_part}.nc"
+    outfile_solr="${OUTPUT_DIR}/clmforc.GSWP3.c2011.0.5x0.5.Solr.ALP4.${date_part}.nc"
         # precipitation
     tmpfile_prec=${OUTPUT_DIR}/tmp_Prec_${date_part}.nc
-    outfile_prec="${OUTPUT_DIR}/clm1pt_ALP4.Prec.${date_part}.nc"
+    outfile_prec="${OUTPUT_DIR}/clmforc.GSWP3.c2011.0.5x0.5.Prec.ALP4.${date_part}.nc"
         # temperature, pressure etc
     tmpfile_tpqwl=${OUTPUT_DIR}/tmp_tpqwl_${date_part}.nc
-    outfile_tpqwl="${OUTPUT_DIR}/clm1pt_ALP4.TPQWL.${date_part}.nc"
+    outfile_tpqwl="${OUTPUT_DIR}/clmforc.GSWP3.c2011.0.5x0.5.TPQWL.ALP4.${date_part}.nc"
 
     # Extract the radiation and time variables
     ncks -v SWDIFDS_RAD,time "$infile" "$tmpfile_solr"
@@ -79,8 +79,7 @@ for infile in "$INPUT_DIR"/clm1pt_ALP4_*.nc; do
     ncks -A -v PRECTmms,time "$tmpfile_prec" "$outfile_prec"
     ncks -A -v PSRF,TBOT,WIND,QBOT,FLDS,time "$tmpfile_tpqwl" "$outfile_tpqwl"
 
-    # Rename tmp to final name
-    mv "$tmpfile_solr" "$outfile_solr"
-    mv "$tmpfile_prec" "$outfile_prec"
-    mv "$tmpfile_tpqwl" "$outfile_tpqwl"
+    # clean up temporary files
+    rm -f "$tmpfile_solr" "$tmpfile_prec" "$tmpfile_tpqwl"
+
 done
