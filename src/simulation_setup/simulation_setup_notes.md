@@ -8,7 +8,7 @@ This guide is written to document model installation, simulations setup, and run
 
 The goal is to perform:
 
-* two initial out-of-the-box simulations (B - baseline), but with improved surface data changed according to local observations. One will include all the default PFTs (A), while the other will be restricted to grass PFTs only (G). These will use a 2000 compset and cold start, thus representing a recent climate and *not* historical progression. The goal is to see how the model performs out of the box, and run simulations that are long enough to get an equilibrium with the climate and stable soil properties. These serve two purposes: First, results from the last 10(?) years will be reported on as the model's baseline for the site. Second, restart files from these two simulations will be re-used as spinup for the subsequent simulations.
+* two initial out-of-the-box simulations (B - baseline), but with improved surface data changed according to local observations, and with grazing enabled for all land use classes and PFTs. One will include all the default PFTs (A), while the other will be restricted to grass PFTs only (G). These will use a 2000 compset and cold start, thus representing a recent climate and *not* historical progression. The goal is to see what vegetation the model predicts out of the box, and run simulations that are long enough to get an equilibrium with the climate and stable soil properties. These serve two purposes: First, results from the last 10(?) years will be reported on as the model's baseline for the site. Second, restart files from these two simulations will be re-used as spinup for the subsequent simulations.
 	* GSWP3 forcing, All PFTs - (BA-GSWP3)
 	* GSWP3 forcing, Grass PFTs - (BG-GSWP3)
 * three improved (I) simulations, using the two baseline simulations as spinup, where the vegetation will reach a new equilibrium and data for the results will be taken from the final 14/16 years. These simulations will also be run with a year-2000 compset, and either of all (A) or grass (G) PFTs. A regional data set, COSMO-REA6, will be used as atmospheric forcing. An additional simulation will have  modified, warmed COSMO-REA6 forcing (COSMO-Warmed) with 1 degree C higher temperature.
@@ -32,16 +32,12 @@ git checkout tags/ctsm5.3.034_noresm_v6 -b ctsm5.3.034_noresm_v6
 
 ### 1.1 Create and load conda environment
 
-Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, specify that packages should be under /cluster/projects/nn9774k/conda/evaler, and create the ctsm-env conda environment containing a list of packages listed under CTSM/python/conda_env_ctsm_latest.txt.
+Create a conda environment with the packages CTSM needs to subset global data. The conda env should be placed in the project folder because it will create very many files that would otherwise make the home folder exceed the max allowed file number. Run the shell script `create_conda_env.sh` which will purge (unload) existing modules, install conda with Miniforge, specify that packages should be under /cluster/projects/nn9774k/conda/evaler, and create the ctsm-env conda environment containing a list of packages listed under CTSM/python/conda_env_ctsm_latest.txt. Then activate the environment in the terminal you are working in.
 
 ```
 cd /cluster/home/evaler/FATES_INCLINE/src/data_handling
 ./create_conda_env.sh
-```
 
-Then activate the environment in the terminal you are working in.
-
-```
 module purge 
 module load Miniforge3/24.1.2-0
 conda init
@@ -234,7 +230,7 @@ mkdir /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/BA-GSWP3  /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 ```
 
-
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/shared/noresm/inputdata/evaler/inputdata/ALP4-COSMO/user_mods/user_nl_datm_streams  /mnt/c/Users/evaler/temp/user_nl_datm_streams
 --------------------------
 
 ## Useful commands
@@ -257,3 +253,9 @@ nccopy -k 'cdf5' in.nc out.nc
 nccopy -k 'netCDF-4' in.nc out.nc
 ncdump in.nc > out.cdl
 ```
+
+## Model modifications
+
+Modified versions of model files are stored under ../model_modifications for reference.
+
+cp <file> /cluster/work/users/evaler/noresm/FATES_INCLINE/src/model_modifications

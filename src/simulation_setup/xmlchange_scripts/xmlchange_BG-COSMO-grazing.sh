@@ -5,7 +5,8 @@ set -e
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BG-COSMO-grazing
 
 ./xmlchange NTASKS=1  
-./xmlchange DATM_MODE=CLMGSWP3v1
+./xmlchange DATM_MODE=COSMOREA
+#./xmlchange DATM_MODE=CLMGSWP3v1
 ./xmlchange STOP_N=5
 ./xmlchange STOP_OPTION=nyears
 ./xmlchange RUN_STARTDATE=2000-01-01,DATM_YR_START=2000,DATM_YR_END=2006
