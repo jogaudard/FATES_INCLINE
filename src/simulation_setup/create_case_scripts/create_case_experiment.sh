@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Baseline simulation with COSMO forcing, Grass PFTs only, grazing enabled - (BG-COSMO-grazing)
+# "experiment" simulation with bias-corrected GSWP3 forcing modified to add a warming anomaly that mimics the OTC effect
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BG-COSMO-grazing
+CASE_NAME=experiment
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
-UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/ALP4-COSMO
+#2000_DATM%GSWP3v1_CLM50%FATES_SICE_SOCN_MOSART_SGLC_SWAV_SESP
+UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-otc
 
 cd /cluster/home/evaler/CTSM/cime/scripts/
 

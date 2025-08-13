@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Baseline simulation with GSWP3 forcing, All PFTs - (BA-GSWP3)
+# "warm" simulation with default GSWP3 forcing (which has a warm bias)
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BA-GSWP3-bedrock-1850
+CASE_NAME=warm
 PROJECT=nn9774k
-COMPSET=1850_DATM%GSWP3v1_CLM50%FATES_SICE_SOCN_MOSART_SGLC_SWAV
+COMPSET=I2000Clm50Fates
+#2000_DATM%GSWP3v1_CLM50%FATES_SICE_SOCN_MOSART_SGLC_SWAV_SESP
 UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3
 
 cd /cluster/home/evaler/CTSM/cime/scripts/

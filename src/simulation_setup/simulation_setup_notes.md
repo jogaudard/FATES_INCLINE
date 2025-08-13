@@ -2,21 +2,19 @@
 
 This document was created 2025-05-12 and is inspired by several sources, e.g. https://hackmd.io/@pYjjfkwmSfW932OvIjzLHA/H1YNgFXqJl
 
-Created by Eva Lieungh, Yeliz Yilmaz, Lasse T. Keetz and others.
+Created by Eva Lieungh with help from Yeliz Yilmaz, Lasse T. Keetz and others.
 
 This guide is written to document model installation, simulations setup, and running the model on the Norwegian HPC Betzy. The model repo (CTSM) is stored under my home folder (/cluster/home/evaler/). My own forcing data (subset and modified from defaults), and shared default data (used for subsetting) is available in the project. The FATES_INCLINE repo, case folders, and model outputs are in my Betzy work folder (/cluster/work/users/evaler/).
 
-The goal is to perform:
+The goal is to perform four simulations, the first being a spinup simulation to create a baseline file to restart other cases from. All simulations will be restricted to grass PFTs only and feature improved surface data (changed according to local observations) and simple grazing enabled for all land use classes and PFTs. The spinup simulation will be a cold start from bare ground, with default GSWP3 atmospheric forcing. All simulations will use an I2000 compset, thus representing a recent climate and *not* historical progression. The goal is to run simulations that are long enough to get an equilibrium with the climate and stable soil properties.
 
-* two initial out-of-the-box simulations (B - baseline), but with improved surface data changed according to local observations, and with grazing enabled for all land use classes and PFTs. One will include all the default PFTs (A), while the other will be restricted to grass PFTs only (G). These will use a 2000 compset and cold start, thus representing a recent climate and *not* historical progression. The goal is to see what vegetation the model predicts out of the box, and run simulations that are long enough to get an equilibrium with the climate and stable soil properties. These serve two purposes: First, results from the last 10(?) years will be reported on as the model's baseline for the site. Second, restart files from these two simulations will be re-used as spinup for the subsequent simulations.
-	* GSWP3 forcing, All PFTs - (BA-GSWP3)
-	* GSWP3 forcing, Grass PFTs - (BG-GSWP3)
-* three improved (I) simulations, using the two baseline simulations as spinup, where the vegetation will reach a new equilibrium and data for the results will be taken from the final 14/16 years. These simulations will also be run with a year-2000 compset, and either of all (A) or grass (G) PFTs. A regional data set, COSMO-REA6, will be used as atmospheric forcing. An additional simulation will have  modified, warmed COSMO-REA6 forcing (COSMO-Warmed) with 1 degree C higher temperature.
-	* COSMO forcing, All PFTs - (IA-COSMO)
-	* COSMO forcing, Grass PFTs - (IG-COSMO)
-	* Warmed COSMO forcing, Grass PFTs, (IG-COSMO-W)
+Three restart simulations will represent different climates and be used to simulate climate warming and the open-top-chamber effect from the INCLINE field experiment.
+These three simulations will start from the spinup restart file, and run for two cycles the 113 years of GSWP3 forcing. Results will be presented from the final 14 years (2000--2014). The simulations will differ only in atmospheric forcing:
+	1. Bias-corrected GSWP3 ("cold")
+	2. Default GSWP3 which has a warm bias ("warm")
+	3. Warming treatment with open-top-chamber effect ("experiment")
 
-All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335. Open, alpine vegetation at 1088 m elevation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
+All simulaitons are single-site, at the Skjellingahaugen site of the Vestland Climate Grid. This site is also available in the LSP. Skjellingahaugen has coordinates lon 6.41504, lat 60.9335, at 1088 m elevation, and land cover is open, alpine vegetation. Mean summer temperature is 7 degrees C, and mean annual precipitation is 3402 mm.
 
 ## 1. Initial set up of model and environment
 
@@ -50,34 +48,23 @@ Store model input data (atmospheric forcing, durface data, domain) under /cluste
 
 ### 2.1 Atmospheric forcing data
 
-Check whether it's possible to re-use the data from the old setup (tag v1.0), at least the atmospheric forcing. 
+See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md). This creates a single-site subset of the GSWP3 data that fits the model version used here. 
+Finished default GSWP3 data for site Skjellingahaugen is stored in /cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3.
 
-Prepared single-site forcing available on GitHub, modified from the NorESM-LSP. All these prepared folders include modified surface data (see [the dataprep_surfacedata notebook](https://github.com/evalieungh/FATES_INCLINE/blob/main/src/data_handling/dataprep_surfacedata.ipynb)). Zipped files are available for GSWP3, COSMO, and COSMO-Warmed under [evalieungh/FATES_INCLINE/main/data/](https://github.com/evalieungh/FATES_INCLINE/tree/main/data).
-
-Download the data using direct download links to the zipped files for ALP4 (Skjellingahaugen):
-
-```
-# GSWP3
-wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4.zip
-# COSMO
-wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_cosmorea_noleap.zip
-# COSMO-Warmed
-wget https://raw.githubusercontent.com/evalieungh/FATES_INCLINE/main/data/ALP4_cosmorea_warmed.zip
-```
-
-Unzip the folders into Betzy login node folder ALP4-GSWP3 etc with `unzip`
-
-Make sure the surface data is in the correct format. Convert from netcdf-4 to cdf5.
+From the default atmospheric forcing, create a bias-corrected version. First, find a correction factor based on local observations. 
 
 ```
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
-chmod +x surfacedata_file_conversion.sh
-./surfacedata_file_conversion.sh
+cd /cluster/shared/noresm/inputdata/evaler/inputdata
+cp -r skj_pt_gswp3 skj_pt_gswp3-cold
 ```
 
-### 2.2  **ALTERNATIVE** Use new data
+TO DO
+From the bias-corrected version, create the open-top-camber (OTC) version of atmospheric forcing.
 
-See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md).
+```
+cd /cluster/shared/noresm/inputdata/evaler/inputdata
+cp -r skj_pt_gswp3-cold skj_pt_gswp3-otc
+```
 
 ### 2.3 Modify surface data
 
@@ -95,6 +82,14 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod +x surfacedata_mod_exec.sh
 chmod +x surfacedata_modification.py
 ./surfacedata_mod_exec.sh
+```
+
+Make sure the surface data is in the correct format. Convert from netcdf-4 to cdf5 if necessary.
+
+```
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x surfacedata_file_conversion.sh
+./surfacedata_file_conversion.sh
 ```
 
 The finished modified surface data is stored as `/cluster/shared/noresm/inputdata/evaler/inputdata/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc`
@@ -148,41 +143,35 @@ Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_IN
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
-./create_case_BA-GSWP3.sh
+./create_case_spinup.sh
 
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 ./case.setup
 ```
 
 ### 3.1 Namelist and xml changes
-Then, add these namelist changes to user_nl_clm (inside case directory), changing the parameter file to `fates_params_grassonly.nc` or `fates_params_grazing_grassonly.nc` for the relevant cases:
 
-```
-fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'
-
-fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_default.nc'
-
-use_excess_ice = .false.
-
-```
-NB! To be able to use the soil depth (zbedrock) modification in the modified surface data, 
-`use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>.  <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
-
-
-For the restart simulations, the restart file also needs to be added:
-
-```
-finidat = ‘full_path_to_restart_file.clm2.r.0000.nc’
-finidat = '/cluster/work/users/evaler/noresm/BA-GSWP3-bedrockoff/run/BA-GSWP3-bedrockoff.clm2.r.2002-01-01-00000.nc'
-```
-
-Then we set additional simulation settings (simulation time etc.). Make a short script per case, for example xmlchange_BA-GSWP3.sh: 
+Xml changes and namelist changes are added by scripts. The changes are applied using ./xmlchange (simulation time etc.) and lines added to user_nl_clm (inside case directory), changing the surface data and parameter files (other options: `fates_params_grassonly.nc` or `fates_params_default.nc`). 
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
 chmod +x xmlchange_BA-GSWP3.sh
 ./xmlchange_BA-GSWP3.sh
 ```
+Check that user_nl_clm now contains these lines:
+
+```
+fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'
+fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_grazing_grassonly.nc'
+use_excess_ice = .false.
+# and for restart simulations (cold, warm, experiment):
+finidat = '/cluster/work/users/evaler/noresm/spinup/run/spinup.clm2.r.2002-01-01-00000.nc'
+```
+NB! To be able to use the soil depth (zbedrock) modification in the modified surface data, 
+`use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>.  <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
+
+To continue a run of the same case, run `./xmlchange CONTINUE_RUN=TRUE` for the case before submitting.
+
 
 ### 3.2 Build the case
 
@@ -222,7 +211,7 @@ NB! If there are multiple history tapes, these should be concatenated separately
 
 NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version can open new model output after conversion to NetCDF4. 
 
-Then open a local wsl terminal and download the case folder and history archive (or right-click and download from VScode setup):
+Then open a local wsl terminal and download the case folder and history archive:
 
 ```
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3  /mnt/c/Users/evaler/model_output
@@ -230,7 +219,6 @@ mkdir /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/BA-GSWP3  /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 ```
 
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/shared/noresm/inputdata/evaler/inputdata/ALP4-COSMO/user_mods/user_nl_datm_streams  /mnt/c/Users/evaler/temp/user_nl_datm_streams
 --------------------------
 
 ## Useful commands
@@ -259,3 +247,22 @@ ncdump in.nc > out.cdl
 Modified versions of model files are stored under ../model_modifications for reference.
 
 cp <file> /cluster/work/users/evaler/noresm/FATES_INCLINE/src/model_modifications
+
+
+# LOG / TO DO
+
+2025-07-20: Re-started BA-GSWP3-grazing (565 years done before, starting another 565) after specifying ./xmlchange CONTINUE_RUN=TRUE. To do next time: concatenate and inspect output to see if soil conditions are stable and that the run continued (yes!) instead of starting from bare ground... Then do the same for BG-GSWP3-grazing (started! 2025-08-04 11-ish). 
+Set up a meeting to discuss with coauthors: whether to keep trying cosmo, or to instead bias-correct GSWP3 and add the temperature anomaly there instead. 
+
+
+Download the entire work dir for backup in case something is lost with:
+`rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler  /mnt/c/Users/evaler/model_output`
+Done 2025-07-11, make another backup before end of August!
+
+2025-08-11: What next?
+- keep trying with COSMO (same procedure or try to get complete data and subset from stratch)
+  OR try bias-correcting GSWP3 and use that instead (+ add OTC effect as warming treatment - could test difference between OTC effect and general warm bias?)
+- maybe adjust grazing intensity ? Check if numbers are averaged before comparison. Observed: 0.085 kg/m2 
+- find out why all the PFTs persist - maybe skip the all-PFT simulations if it is supposed to be that way...
+- spin-up and transient. Should I change to 'real' timeline with spinup in 1850-compset, then 2000, then 'real' vs warmed? Could simplify setup but means redoing everything. (What does 1850-compset change? Do I need to change other stuff as well? Accelerated spinup?)
+- TOTSOMC in spinup - still not stabilised after 1130 years - how long should I go? 
