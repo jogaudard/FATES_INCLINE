@@ -12,13 +12,10 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/spinup
 
 ./xmlchange NTASKS=1  
 ./xmlchange DATM_MODE=CLMGSWP3v1
-./xmlchange STOP_N=5
+./xmlchange STOP_N=565
 ./xmlchange STOP_OPTION=nyears
-./xmlchange RUN_STARTDATE=1901-01-01,DATM_YR_START=1901,DATM_YR_END=1906
-./xmlchange DATM_YR_ALIGN=1901
-#./xmlchange RUN_STARTDATE=1901-01-01,DATM_YR_START=1901,DATM_YR_END=2014
-#./xmlchange DATM_YR_ALIGN=1901
-./xmlchange JOB_WALLCLOCK_TIME=01:59:00
+./xmlchange RUN_STARTDATE=1901-01-01,DATM_YR_START=1901,DATM_YR_END=2014
+./xmlchange JOB_WALLCLOCK_TIME=23:59:00
 
 # namelist changes
 echo "fsurdat = '\$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'" >> user_nl_clm

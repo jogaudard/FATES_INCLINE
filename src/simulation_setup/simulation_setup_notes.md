@@ -51,11 +51,18 @@ Store model input data (atmospheric forcing, durface data, domain) under /cluste
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md). This creates a single-site subset of the GSWP3 data that fits the model version used here. 
 Finished default GSWP3 data for site Skjellingahaugen is stored in /cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3.
 
+#### 2.1.1 Cold (bias correction)
 From the default atmospheric forcing, create a bias-corrected version. First, find a correction factor based on local observations. 
 
 ```
+python bias_gswp3_vs_vcg_temperature.py > bias_correctionfactor_log.txt
+```
+
+Then make a copy of the default forcing and modify it
+```
 cd /cluster/shared/noresm/inputdata/evaler/inputdata
 cp -r skj_pt_gswp3 skj_pt_gswp3-cold
+# script...
 ```
 
 TO DO
