@@ -96,6 +96,8 @@ The forcing data is provided at 3-hourly time steps. Let's choose 06:00 to 21:00
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod +x otc_effect_forcing_modification.sh
 ./otc_effect_forcing_modification.sh
+cd /cluster/shared/noresm/inputdata/evaler/inputdata
+rm copy*
 ```
 
 ### 2.3 Modify surface data
@@ -197,6 +199,7 @@ use_excess_ice = .false.
 # and for restart simulations (cold, warm, experiment):
 finidat = '/cluster/work/users/evaler/noresm/spinup/run/spinup.clm2.r.2002-01-01-00000.nc'
 ```
+
 NB! To be able to use the soil depth (zbedrock) modification in the modified surface data, 
 `use_bedrock = .true.` also needs to be set in the namelist. But it results in an error related to CN balance checks, so we have to take it out for now. This means that even though I have changed the depth to bedrock in the surface data, this information will not be used in the simulation. See <https://github.com/ESCOMP/CTSM/pull/1902> and <https://github.com/ESCOMP/CTSM/issues/1888>.  <https://bb.cgd.ucar.edu/cesm/threads/use_bedrock-leading-to-cnbalancecheck-error-in-clm-fates.11577/>
 

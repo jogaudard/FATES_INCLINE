@@ -2,10 +2,10 @@
 
 set -e
 
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/cold
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/experiment
 
 ./xmlchange CLM_USRDAT_NAME=ALP4
-./xmlchange CLM_USRDAT_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-cold
+./xmlchange CLM_USRDAT_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-otc
 ./xmlchange PTS_LON=6.41504
 ./xmlchange PTS_LAT=60.9335
 
