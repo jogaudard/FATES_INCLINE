@@ -42,19 +42,29 @@
     "9": {
         "long_name": "Broadleaf cold-deciduous extratropical shrub",
         "group": "shrub",
-        "colour": "#cab2d6"
+        "colour": "#ff7f09"
     },
     "10": {
+        "long_name": "Broadleaf evergreen arctic shrub",
+        "group": "shrub",
+        "colour": "#cab2d6"
+    },
+    "11": {
+        "long_name": "Broadleaf cold-deciduous arctic shrub",
+        "group": "shrub",
+        "colour": "#cab2d0"
+    },
+    "12": {
         "long_name": "Arctic C3 grass",
         "group": "grass",
         "colour": "#6a3d9a"
     },
-    "11": {
+    "13": {
         "long_name": "Cool C3 grass",
         "group": "grass",
         "colour": "#ffff99"
     },
-    "12": {
+    "14": {
         "long_name": "C4 grass",
         "group": "grass",
         "colour": "#b15928"
