@@ -48,10 +48,11 @@ Store model input data (atmospheric forcing, durface data, domain) under /cluste
 
 ### 2.1 Atmospheric forcing data
 
+#### 2.1.2 Default GSWP3 (with warm bias)
 See [notes on forcing data preparation](../data_handling/create_singlepoint_gswp3.md). This creates a single-site subset of the GSWP3 data that fits the model version used here. 
-Finished default GSWP3 data for site Skjellingahaugen is stored in /cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3.
+Finished default GSWP3 data for site Skjellingahaugen is stored in /cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3. The default, warm forcing
 
-#### 2.1.1 Cold (bias correction)
+#### 2.1.2 Cold adjustment (simplistic bias correction)
 From the default atmospheric forcing, create a bias-corrected version. First, find a correction factor based on local observations. 
 
 ```
@@ -59,22 +60,45 @@ python bias_gswp3_vs_vcg_temperature.py > bias_correctionfactor_log.txt
 ```
 
 Then make a copy of the default forcing and modify it
+
 ```
 cd /cluster/shared/noresm/inputdata/evaler/inputdata
 cp -r skj_pt_gswp3 skj_pt_gswp3-cold
-# script...
-```
 
-TO DO
-From the bias-corrected version, create the open-top-camber (OTC) version of atmospheric forcing.
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x create_cold_gswp3.sh
+./create_cold_gswp3.sh
+```
+Make sure the temperature looks reasonable, e.g. by looking at the numbers of a sample file with `ncdump`. 
+
+#### 2.1.3 Experimental treatment (Open-Top-Chamber effect)
+From the cold version, create the open-top-camber (OTC) version of atmospheric forcing. Assuming logger placement/removal dates coincide well with OTC placement and removal dates, data from INCLINE_metadata_LoggerDates. csv, https://osf.io/5nmfe, gives these dates:
+
+| Site  | placement  |  removal  |
+|  ---- | --------   | --------- |
+| Ulvehaugen, ALP1 | 2019-06-11, 2021-06-17 | 2020-09-22, 2021-09-29 |
+| Lavisdalen, ALP2 | 2019-06-19, 2021-06-15 | 2020-09-29, 2021-09-28 |
+| Gudmedalen, ALP3 | 2019-06-12, 2021-06-16 | 2020-09-30, 2021-09-28 |
+| Skjellingahaugen, ALP4 | 2019-06-20, 2021-06-18 | 2020-09-28, 2021-09-27 |
+
+For simplicity, use June 1st and Sept 30 as placement and removal dates for all sites and years. We only apply the OTC effect between these dates. 
+
+We choose 1 degree (C or K) as a flat increase.
+
+The forcing data is provided at 3-hourly time steps. Let's choose 06:00 to 21:00 as 'daytime' when we apply the temperature modification. We choose 21:00 instead of 18:00 because high temperatures generally persist into the evenings in the summer because the sun goes down late in summer. For GSWP3 forcing, times are given in fractional days, 'days since start of month'. We want to modify TBOT when the time has one of these decimals:
+.3125 corresponds to hourly interval 06-09
+.4375 corresponds to hourly interval 09-12
+.5625 corresponds to hourly interval 12-15
+.6875 corresponds to hourly interval 15-18
+.8125 corresponds to hourly interval 18-21
 
 ```
-cd /cluster/shared/noresm/inputdata/evaler/inputdata
-cp -r skj_pt_gswp3-cold skj_pt_gswp3-otc
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
+chmod +x otc_effect_forcing_modification.sh
+./otc_effect_forcing_modification.sh
 ```
 
 ### 2.3 Modify surface data
-
 First, manually upload the following Vestland Climate Grid data files (from https://osf.io/npfa9) to the data folder (/cluster/work/users/evaler/noresm/FATES_INCLINE/data/VCG_OSF):
 - VCG_clean_gridded_daily_climate_2008-2022.csv (https://osf.io/s9k7c)
 - VCG_clean_soil_chemistry_2009_2010_2013_2015.csv
@@ -108,7 +132,6 @@ cp surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc skj_pt_gswp3/surfdata_ALP4
 ```
 
 ### 2.4 Modify SLA and grazing, and create grass-only FATES parameter file
-
 Run a script to copy and modify FATES parameter file. It uses FATES' script tools/modify_fates_paramfile.py to change the SLA accroding to local observtions. For fates_leaf_slatop, set the parameter to 0.0376 m²/gC (from 0.03 m²/gC default). Use FATES' IndexSwapper script to make a new FATES parameter file with only grass PFTs. Grass PFTs are arctic_c3_grass,cool_c3_grass,c4_grass (index numbers 12,13,14).
 
 See e.g. <https://fates-users-guide.readthedocs.io/projects/tutorial/en/latest/parameter_file_tools.html>
@@ -179,9 +202,7 @@ NB! To be able to use the soil depth (zbedrock) modification in the modified sur
 
 To continue a run of the same case, run `./xmlchange CONTINUE_RUN=TRUE` for the case before submitting.
 
-
 ### 3.2 Build the case
-
 Then, build the case so it is ready for running, and run a check to see if there are any issues. If the case has already been built before and you need to change something, run `./case.build --clean` first.
 
 ```
@@ -193,7 +214,6 @@ Build logs, and output from the simulation, will be placed under /cluster/work/u
 Go there and check the logs just in case to see that there are no errors. 
 
 ### 3.3 Submit the case
-
 The final step is to submit a job to run the model.
 
 ```
@@ -203,11 +223,10 @@ The final step is to submit a job to run the model.
 When a case is running, output files will be stored temporarily in the run directory (e.g. /cluster/work/users/evaler/noresm/BA-GSWP3/run) befor it is moved to archive.
 
 ## 4. Download case folder and model output
+The output from a case will be in /cluster/work/users/evaler/archive/<casename>. 
 
-The output from a case will be in /cluster/work/users/evaler/archive/<casename>. The output is given as monthly files, so I will combine them first so it's easier to plot and work with a single file. Combine the files, then download all the output to do analysis offline.
-Download the case folder first, then download the outputs to that case folder. 
-
-First, concatenate/combine history files for a given case name:
+### 4.1 Concatenate case
+The output is given as monthly files, so I will combine them first so it's easier to plot and work with a single file. Combine the files, then download all the output to do analysis offline. First, concatenate/combine history files for a given case name:
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
@@ -218,7 +237,8 @@ NB! If there are multiple history tapes, these should be concatenated separately
 
 NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version can open new model output after conversion to NetCDF4. 
 
-Then open a local wsl terminal and download the case folder and history archive:
+### 4.2 Download files
+Download the case folder first, then download the outputs to that case folder. Open a local wsl terminal and download the case folder and history archive:
 
 ```
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3  /mnt/c/Users/evaler/model_output
@@ -226,7 +246,7 @@ mkdir /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/BA-GSWP3  /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 ```
 
---------------------------
+------------------------------------------------------------------------------
 
 ## Useful commands
 
@@ -258,18 +278,8 @@ cp <file> /cluster/work/users/evaler/noresm/FATES_INCLINE/src/model_modification
 
 # LOG / TO DO
 
-2025-07-20: Re-started BA-GSWP3-grazing (565 years done before, starting another 565) after specifying ./xmlchange CONTINUE_RUN=TRUE. To do next time: concatenate and inspect output to see if soil conditions are stable and that the run continued (yes!) instead of starting from bare ground... Then do the same for BG-GSWP3-grazing (started! 2025-08-04 11-ish). 
-Set up a meeting to discuss with coauthors: whether to keep trying cosmo, or to instead bias-correct GSWP3 and add the temperature anomaly there instead. 
-
-
 Download the entire work dir for backup in case something is lost with:
 `rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler  /mnt/c/Users/evaler/model_output`
 Done 2025-07-11, make another backup before end of August!
 
-2025-08-11: What next?
-- keep trying with COSMO (same procedure or try to get complete data and subset from stratch)
-  OR try bias-correcting GSWP3 and use that instead (+ add OTC effect as warming treatment - could test difference between OTC effect and general warm bias?)
-- maybe adjust grazing intensity ? Check if numbers are averaged before comparison. Observed: 0.085 kg/m2 
-- find out why all the PFTs persist - maybe skip the all-PFT simulations if it is supposed to be that way...
-- spin-up and transient. Should I change to 'real' timeline with spinup in 1850-compset, then 2000, then 'real' vs warmed? Could simplify setup but means redoing everything. (What does 1850-compset change? Do I need to change other stuff as well? Accelerated spinup?)
-- TOTSOMC in spinup - still not stabilised after 1130 years - how long should I go? 
+Maybe adjust grazing intensity ? Check if numbers are averaged before comparison. Observed: 0.085 kg/m2 

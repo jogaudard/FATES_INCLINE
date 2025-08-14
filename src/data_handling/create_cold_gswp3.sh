@@ -10,13 +10,11 @@
 # This shell script performs a simplistic bias correction of the default GSWP3 forcing.
 
 set -o errexit  # Exit the script on any error
-
 module --quiet purge  # Reset the modules to the system default
 module load Miniforge3/24.1.2-0
 source ${EBROOTMINIFORGE3}/bin/activate
 export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/evaler/package-cache
 export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
-
 conda activate $CONDA_ENV_SRC/ctsm-env
 
 # Set path to atmospheric forcing to be modified
