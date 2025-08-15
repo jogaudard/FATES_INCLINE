@@ -19,11 +19,10 @@ conda activate $CONDA_ENV_SRC/ctsm-env
 
 # make a copy of the cold GSWP3 data to start from
 cd /cluster/shared/noresm/inputdata/evaler/inputdata
-cp -r skj_pt_gswp3-cold skj_pt_gswp3-otc
+cp -r skj_pt_gswp3 skj_pt_gswp3-warm-otc
 
 # Set path to atmospheric forcing to be modified
-#OTC_DATM_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-otc/datmdata
-OTC_DATM_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-otc/datmdata
+OTC_DATM_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-warm-otc/datmdata
 
 # define summer months (when OTCs are up in the snowfree season)
 SUMMER="06 07 08 09"
