@@ -1,0 +1,12 @@
+{
+    "1": {
+        "long_name": "Arctic C3 grass",
+        "group": "grass",
+        "colour": "#24513F"
+    },
+    "2": {
+        "long_name": "Cool C3 grass",
+        "group": "grass",
+        "colour": "#4FB089"
+    }
+}
