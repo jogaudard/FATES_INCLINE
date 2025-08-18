@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# "cold" simulation with bias-corrected GSWP3 forcing
+# "cold" simulation with cold-adjusted GSWP3 forcing
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
 CASE_NAME=cold
