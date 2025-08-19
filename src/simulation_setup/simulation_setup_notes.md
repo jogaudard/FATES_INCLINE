@@ -249,6 +249,12 @@ mkdir /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/BA-GSWP3  /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
 ```
 
+Download the input data as well to ensure possibility to replicate simulations. These will be uploaded to zenodo later.
+
+```
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/shared/noresm/inputdata/evaler/inputdata /mnt/c/Users/evaler/model_output/.
+```
+
 ------------------------------------------------------------------------------
 
 ## Useful commands
