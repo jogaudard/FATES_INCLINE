@@ -171,13 +171,13 @@ chmod+x modify_FATES_grazing_params.sh
 
 ## 3. Set up cases and run the model
 
-Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/casename. Make the 'cases' folder if necessary (`mkdir cases`). There is one create case script per case. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. So, for example for the case BA-GSWP3:
+Create cases, which will be placed in /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/casename. Make the 'cases' folder if necessary (`mkdir cases`). There is one create case script per case. Make them executable with `chmod +x <create_case_....sh>`. Next, run ./case.setup to build the namelist. 
 
 ```
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/create_case_scripts
 ./create_case_spinup.sh
 
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/spinup
 ./case.setup
 ```
 
@@ -186,9 +186,9 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3
 Xml changes and namelist changes are added by scripts. The changes are applied using ./xmlchange (simulation time etc.) and lines added to user_nl_clm (inside case directory), changing the surface data and parameter files (other options: `fates_params_grassonly.nc` or `fates_params_default.nc`). 
 
 ```
-cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup
-chmod +x xmlchange_BA-GSWP3.sh
-./xmlchange_BA-GSWP3.sh
+cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/xmlchage_scripts
+chmod +x xmlchange_spinup.sh
+./xmlchange_spinup.sh
 ```
 Check that user_nl_clm now contains these lines:
 
@@ -223,7 +223,7 @@ The final step is to submit a job to run the model.
 ./case.submit
 ```
 
-When a case is running, output files will be stored temporarily in the run directory (e.g. /cluster/work/users/evaler/noresm/BA-GSWP3/run) befor it is moved to archive.
+When a case is running, output files will be stored temporarily in the run directory (e.g. /cluster/work/users/evaler/noresm/spinup/run) befor it is moved to archive.
 
 ## 4. Download case folder and model output
 The output from a case will be in /cluster/work/users/evaler/archive/<casename>. 
@@ -234,7 +234,7 @@ The output is given as monthly files, so I will combine them first so it's easie
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod u+x ./download_case.sh
-./concatenate_case.sh BA-GSWP3
+./concatenate_case.sh cold
 ```
 NB! If there are multiple history tapes, these should be concatenated separately. Add it to the script ^ or do it manually if necessary. 
 
@@ -244,9 +244,9 @@ NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version ca
 Download the case folder first, then download the outputs to that case folder. Open a local wsl terminal and download the case folder and history archive:
 
 ```
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/BA-GSWP3  /mnt/c/Users/evaler/model_output
-mkdir /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/BA-GSWP3  /mnt/c/Users/evaler/model_output/BA-GSWP3/archive
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/cold  /mnt/c/Users/evaler/model_output
+mkdir /mnt/c/Users/evaler/model_output/cold/archive
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/cold  /mnt/c/Users/evaler/model_output/cold/archive
 ```
 
 Download the input data as well to ensure possibility to replicate simulations. These will be uploaded to zenodo later.
@@ -254,6 +254,13 @@ Download the input data as well to ensure possibility to replicate simulations. 
 ```
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/shared/noresm/inputdata/evaler/inputdata /mnt/c/Users/evaler/model_output/.
 ```
+
+Download the model. Move altered files into `/src/model_modifications`
+
+```
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/home/evaler/CTSM /mnt/c/Users/evaler/model_output/.
+```
+
 
 ------------------------------------------------------------------------------
 
@@ -291,4 +298,7 @@ Download the entire work dir for backup in case something is lost with:
 `rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler  /mnt/c/Users/evaler/model_output`
 Done 2025-07-11, make another backup before end of August!
 
-Maybe adjust grazing intensity ? Check if numbers are averaged before comparison. Observed: 0.085 kg/m2 
+Check if biomass numbers are averaged before comparison. Observed: 0.085 kg/m2 
+
+- check which model files have been changes and copy to model_modifications!
+- download outputs, upload to zenodo
