@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Baseline simulation with GSWP3 forcing, Grass PFTs only - (BG-GSWP3)
+# "experimentwarm" simulation with default GSWP3 forcing modified to add a warming anomaly that mimics the OTC effect
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BG-GSWP3-grazing
+CASE_NAME=experimentwarm2
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
-UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3
+#2000_DATM%GSWP3v1_CLM50%FATES_SICE_SOCN_MOSART_SGLC_SWAV_SESP
+UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-warm-otc2
 
 cd /cluster/home/evaler/CTSM/cime/scripts/
 

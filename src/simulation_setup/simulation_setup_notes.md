@@ -83,7 +83,7 @@ From the cold version, create the open-top-camber (OTC) version of atmospheric f
 
 For simplicity, use June 1st and Sept 30 as placement and removal dates for all sites and years. We only apply the OTC effect between these dates. 
 
-We choose 1 degree (C or K) as a flat increase.
+We choose 1 degree (C or K) as a flat increase for the general representation of warming treatment, and add a 2-degree flat increase as an extreme version of the heating treatment.
 
 The forcing data is provided at 3-hourly time steps. Let's choose 06:00 to 21:00 as 'daytime' when we apply the temperature modification. We choose 21:00 instead of 18:00 because high temperatures generally persist into the evenings in the summer because the sun goes down late in summer. For GSWP3 forcing, times are given in fractional days, 'days since start of month'. We want to modify TBOT when the time has one of these decimals:
 .3125 corresponds to hourly interval 06-09
@@ -92,12 +92,15 @@ The forcing data is provided at 3-hourly time steps. Let's choose 06:00 to 21:00
 .6875 corresponds to hourly interval 15-18
 .8125 corresponds to hourly interval 18-21
 
+Also, add the correct input data folder to the `shell_commands` file after creating each version.
+
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
 chmod +x otc_effect_forcing_modification.sh
 ./otc_effect_forcing_modification.sh
 cd /cluster/shared/noresm/inputdata/evaler/inputdata
 rm copy*
+vi skj_pt_gswp3/user_mods/shell_commands
 ```
 
 ### 2.3 Modify surface data
@@ -183,7 +186,7 @@ cd /cluster/work/users/evaler/noresm/FATES_INCLINE/cases/spinup
 
 ### 3.1 Namelist and xml changes
 
-Xml changes and namelist changes are added by scripts. The changes are applied using ./xmlchange (simulation time etc.) and lines added to user_nl_clm (inside case directory), changing the surface data and parameter files (other options: `fates_params_grassonly.nc` or `fates_params_default.nc`). 
+Xml changes and namelist changes are added by scripts. The changes are applied using ./xmlchange (simulation time etc.) and lines added to user_nl_clm (inside case directory), changing the surface data and parameter files (other options: `fates_params_grassonly.nc` or `fates_params_default.nc`). For the simulations based on cold-adjusted forcing, a CLM snow parameter (precip_repartition_nonglc_all_snow_t) was changed from 0 to -1 in order to get less snow between 0 and -1 degrees C.
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/simulation_setup/xmlchage_scripts
@@ -283,6 +286,10 @@ dusage
 nccopy -k 'cdf5' in.nc out.nc
 nccopy -k 'netCDF-4' in.nc out.nc
 ncdump in.nc > out.cdl
+
+# inspect data
+ncdump file.nc
+ncks -v TBOT forcingTPQWLfile.nc
 ```
 
 ## Model modifications
@@ -294,11 +301,12 @@ cp <file> /cluster/work/users/evaler/noresm/FATES_INCLINE/src/model_modification
 
 # LOG / TO DO
 
-Download the entire work dir for backup in case something is lost with:
+Download the entire work dir for backup of model output, repo and case folders in case something is lost with:
 `rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler  /mnt/c/Users/evaler/model_output`
 Done 2025-07-11, make another backup before end of August!
 
-Check if biomass numbers are averaged before comparison. Observed: 0.085 kg/m2 
-
 - check which model files have been changes and copy to model_modifications!
-- download outputs, upload to zenodo
+- zip spinup and simulation history files
+- download outputs
+- sort into archive & finished results
+- upload finished results to zenodo

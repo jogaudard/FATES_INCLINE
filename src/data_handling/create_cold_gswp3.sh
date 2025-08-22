@@ -17,8 +17,16 @@ export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/evaler/package-cache
 export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
 conda activate $CONDA_ENV_SRC/ctsm-env
 
+# make a copy of the default GSWP3 data to start from
+cd /cluster/shared/noresm/inputdata/evaler/inputdata
+cp -r skj_pt_gswp3 skj_pt_gswp3-cold
+
+echo copied default forcing to new directory /skj_pt_gswp3-cold
+
 # Set path to atmospheric forcing to be modified
 COLD_DATM_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-cold/datmdata
+
+echo ---- starting cold adjustment ----
 
 # Loop over all monthly NetCDF files
 for infile in "$COLD_DATM_DIR"/*TPQWL*.nc; do

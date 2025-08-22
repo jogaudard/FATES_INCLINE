@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Baseline simulation with GSWP3 forcing, All PFTs - (BA-GSWP3)
+# "experiment" simulation with bias-corrected GSWP3 forcing modified to add a +2 warming anomaly that mimics an exreme OTC effect
 
 CASE_ROOT=/cluster/work/users/evaler/noresm/FATES_INCLINE/cases
-CASE_NAME=BA-GSWP3-grazing
+CASE_NAME=experiment2
 PROJECT=nn9774k
 COMPSET=I2000Clm50Fates
-UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3
+#2000_DATM%GSWP3v1_CLM50%FATES_SICE_SOCN_MOSART_SGLC_SWAV_SESP
+UMODS_ROOT=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-otc2
 
 cd /cluster/home/evaler/CTSM/cime/scripts/
 

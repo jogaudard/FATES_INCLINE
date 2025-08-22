@@ -17,12 +17,14 @@ export CONDA_PKGS_DIRS=/cluster/projects/nn9774k/conda/evaler/package-cache
 export CONDA_ENV_SRC=/cluster/projects/nn9774k/conda/evaler
 conda activate $CONDA_ENV_SRC/ctsm-env
 
-# make a copy of the cold GSWP3 data to start from
+# make a copy of the cold GSWP3 data to start from - change here depending on cold/warm baseline and 1 or 2 degrees OTC effect
 cd /cluster/shared/noresm/inputdata/evaler/inputdata
-cp -r skj_pt_gswp3 skj_pt_gswp3-warm-otc
+cp -r skj_pt_gswp3-warm-otc skj_pt_gswp3-warm-otc2
 
-# Set path to atmospheric forcing to be modified
-OTC_DATM_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-warm-otc/datmdata
+echo --- forcing data copied, start applying anomaly to copy ---
+
+# Set path to atmospheric forcing to be modified - NB! change dir here for cold/warm GSWP3 originals and 1 or 2 degrees
+OTC_DATM_DIR=/cluster/shared/noresm/inputdata/evaler/inputdata/skj_pt_gswp3-warm-otc2/datmdata
 
 # define summer months (when OTCs are up in the snowfree season)
 SUMMER="06 07 08 09"

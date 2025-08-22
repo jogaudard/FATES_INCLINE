@@ -22,6 +22,7 @@ echo "fsurdat = '\$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modifie
 echo "fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_grazing_grassonly.nc'" >> user_nl_clm
 echo "use_excess_ice = .false." >> user_nl_clm
 echo "finidat = '/cluster/work/users/evaler/noresm/spinup/run/spinup.clm2.r.4726-01-01-00000.nc'" >> user_nl_clm
+echo "precip_repartition_nonglc_all_snow_t = -1" >> user_nl_clm
 
 echo Case configured. Namelist changes done.
 
