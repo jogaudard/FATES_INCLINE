@@ -1,5 +1,6 @@
 .Rproj.user
 archive/
+data/GSWP3_forcing_skjellingahaugen/
 data/VCG/
 data/VCG_OSF/
 data/LSPv1_default_inputfiles
@@ -21,9 +22,4 @@ src/archive/
 src/.Rdata
 src/.Rhistory
 src/FATES_INCLINE.Rproj
-src/57f1ca0d279733f9cc1fb2ea11208fbb_alp4-1-calendartest/
-src/ALP4-3000-gswp3-landsurfmod_variables.txt
-src/alp4-1000-cosmo-debug/
-src/alp4-105-cosmo/
-src/alp4-5-cosmo/
 src/simulation_setup/archive
