@@ -200,7 +200,7 @@ fsurdat = '$CLM_USRDAT_DIR/surfdata_ALP4_hist_2000_16pfts_c250701_modified.nc'
 fates_paramfile='/cluster/home/evaler/CTSM/src/fates/parameter_files/fates_params_grazing_grassonly.nc'
 use_excess_ice = .false.
 # and for restart simulations (cold, warm, experiment):
-finidat = '/cluster/work/users/evaler/noresm/spinup/run/spinup.clm2.r.2002-01-01-00000.nc'
+finidat = '/cluster/work/users/evaler/noresm/spinup/run/spinup.clm2.r.4726-01-01-00000.nc'
 ```
 
 NB! To be able to use the soil depth (zbedrock) modification in the modified surface data, 
@@ -236,7 +236,7 @@ The output is given as monthly files, so I will combine them first so it's easie
 
 ```
 cd /cluster/work/users/evaler/noresm/FATES_INCLINE/src/data_handling
-chmod u+x ./download_case.sh
+chmod u+x ./concatenate_case.sh
 ./concatenate_case.sh cold
 ```
 NB! If there are multiple history tapes, these should be concatenated separately. Add it to the script ^ or do it manually if necessary. 
@@ -244,18 +244,20 @@ NB! If there are multiple history tapes, these should be concatenated separately
 NB! Older versions of Panoply cannot open new NetCDF data. My Panoply version can open new model output after conversion to NetCDF4. 
 
 ### 4.2 Download files
-Download the case folder first, then download the outputs to that case folder. Open a local wsl terminal and download the case folder and history archive:
+Open a local wsl terminal and download all the cases and archives. For each case, download the run and bld directories as well. Example for case 'cold':
 
 ```
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases/cold  /mnt/c/Users/evaler/model_output
-mkdir /mnt/c/Users/evaler/model_output/cold/archive
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive/cold  /mnt/c/Users/evaler/model_output/cold/archive
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/FATES_INCLINE/cases .
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/archive .
+cd cases/cold
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/cold/bld .
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler/noresm/cold/run .
 ```
 
 Download the input data as well to ensure possibility to replicate simulations. These will be uploaded to zenodo later.
 
 ```
-rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/shared/noresm/inputdata/evaler/inputdata /mnt/c/Users/evaler/model_output/.
+rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/shared/noresm/inputdata/evaler/inputdata .
 ```
 
 Download the model. Move altered files into `/src/model_modifications`
@@ -263,7 +265,6 @@ Download the model. Move altered files into `/src/model_modifications`
 ```
 rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/home/evaler/CTSM /mnt/c/Users/evaler/model_output/.
 ```
-
 
 ------------------------------------------------------------------------------
 
@@ -305,7 +306,6 @@ Download the entire work dir for backup of model output, repo and case folders i
 `rsync --info=progress2 -a evaler@betzy.sigma2.no:/cluster/work/users/evaler  /mnt/c/Users/evaler/model_output`
 Done 2025-07-11, make another backup before end of August!
 
-- check which model files have been changes and copy to model_modifications!
 - zip spinup and simulation history files
 - download outputs
 - sort into archive & finished results

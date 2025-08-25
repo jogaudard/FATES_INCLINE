@@ -28,3 +28,26 @@ Comparison made from visual inspection of parameter file (`../model_modification
 | 22 | fates_turnover_leaf_canopy = 0.5, 0.15 ;    | Leaf longevity (ie turnover timescale) of canopy plants. For drought-deciduous PFTs, this also indicates the maximum length of the growing (i.e., leaves on) season. (yr) |
 | 23 | fates_turnover_leaf_ustory = 1, 0.15 ;      | Leaf longevity (ie turnover timescale) of understory plants. (yr) |
 
+1. Cool has higher retention of 'high-priority organs'(?)
+2.  d2bl allometry ?
+3. Cool has twice as much fine root C per leaf C - more biomass allocation to roots
+4. Cool's seeds decay faster
+5. ?
+6. Cool has bigger minimal size class?
+7. Minimum stomatal conductance higher for Cool
+8. 
+9.
+10.
+11.
+12.
+13.
+14.
+15. Cool evergreen
+16. Arctic seasonal-deciduous
+17. Cool gets recruited at bigger size
+18.
+19. Arctic has twice as long root longevity
+20.
+21.
+22.
+23.
