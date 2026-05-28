@@ -92,13 +92,13 @@ cflux_skj <- bind_rows(cflux_2020, cflux_2022) |>
 
 # nb of measurements
 
-# bind_rows(cflux_2020, cflux_2022) |>
-#     summarise(
-#         .by = c("type", "year"),
-#         n_OTC = sum(OTC == "W"),
-#         n_control = sum(OTC == "C")
-#     ) |>
-#     View()
+bind_rows(cflux_2020, cflux_2022) |>
+    summarise(
+        .by = c("type", "year"),
+        n_OTC = sum(OTC == "W"),
+        n_control = sum(OTC == "C")
+    ) |>
+    View()
 
 
 write_csv(cflux_skj, "data/c-flux/cflux_skj.csv")
